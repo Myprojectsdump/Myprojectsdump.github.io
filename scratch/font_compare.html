@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&family=Playball&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+<style>
+body { background: #07040C; margin: 0; padding: 20px; color: #FFF; font-family: sans-serif; }
+.card { margin-bottom: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h3>Alex Brush</h3>
+  <svg width="800" height="260" viewBox="0 0 800 260">
+    <defs>
+      <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFFFFF" />
+        <stop offset="20%" stop-color="#FFF2B2" />
+        <stop offset="55%" stop-color="#F5B838" />
+        <stop offset="85%" stop-color="#D98A18" />
+        <stop offset="100%" stop-color="#B45309" />
+      </linearGradient>
+      <filter id="glow1">
+        <feGaussianBlur stdDeviation="4" result="b1" />
+        <feGaussianBlur stdDeviation="8" result="b2" />
+        <feMerge>
+          <feMergeNode in="b2" />
+          <feMergeNode in="b1" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    <text x="400" y="100" text-anchor="middle" font-family="'Alex Brush', cursive" font-size="90" fill="url(#g1)" filter="url(#glow1)">I Love You,</text>
+    <text x="400" y="210" text-anchor="middle" font-family="'Alex Brush', cursive" font-size="110" fill="url(#g1)" filter="url(#glow1)">Uci</text>
+  </svg>
+</div>
+
+<div class="card">
+  <h3>Great Vibes</h3>
+  <svg width="800" height="260" viewBox="0 0 800 260">
+    <text x="400" y="100" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="90" fill="url(#g1)" filter="url(#glow1)">I Love You,</text>
+    <text x="400" y="210" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="110" fill="url(#g1)" filter="url(#glow1)">Uci</text>
+  </svg>
+</div>
+</body>
+</html>

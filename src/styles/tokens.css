@@ -1,0 +1,33 @@
+:root {
+  /* Color Tokens */
+  --color-obsidian-void: #040407;
+  --color-obsidian-deep: #07070c;
+  --color-cosmic-navy: #090b19;
+  --color-velvet-afterhours: #14050a;
+  --color-champagne-gold: #fde68a;
+  --color-soft-gold-ember: #f59e0b;
+  --color-blush-rose: #fda4af;
+  --color-rose-gold: #f472b6;
+  --color-crimson-lust: #e11d48;
+  --color-warm-parchment: #f5ebdd;
+  --color-starlight-white: #ffffff;
+
+  /* Glass Surface Tokens */
+  --glass-bg: rgba(15, 17, 28, 0.65);
+  --glass-bg-dense: rgba(10, 12, 20, 0.85);
+  --glass-border: rgba(253, 230, 138, 0.18);
+  --glass-border-hover: rgba(253, 230, 138, 0.45);
+  --glass-border-rose: rgba(244, 114, 182, 0.35);
+  --glass-border-crimson: rgba(225, 29, 72, 0.4);
+  --glass-blur: blur(20px);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  --font-handwriting: 'Caveat', 'Dancing Script', cursive;
+
+  /* Spacing and safe-bands */
+  --header-height: 56px;
+  --rail-width: 52px;
+}

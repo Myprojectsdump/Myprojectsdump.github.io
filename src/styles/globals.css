@@ -1,0 +1,145 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: var(--color-obsidian-void);
+    color: var(--color-warm-parchment);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-obsidian-void);
+    color: var(--color-warm-parchment);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  ::selection {
+    background: rgba(225, 29, 72, 0.35);
+    color: var(--color-champagne-gold);
+  }
+
+  /* Accessible focus indicators */
+  :focus-visible {
+    outline: 2px solid var(--color-champagne-gold);
+    outline-offset: 3px;
+  }
+
+  /* Native Top-Layer <dialog> & backdrop styles */
+  dialog {
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+
+  dialog:modal {
+    overscroll-behavior: contain;
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    margin: auto;
+  }
+
+  dialog::backdrop {
+    background: rgba(4, 4, 7, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Manual popover styling */
+  [popover] {
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    margin: 0;
+  }
+}
+
+/* Glassmorphic luxury components */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel-dense {
+  background: var(--glass-bg-dense);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel-rose {
+  background: rgba(20, 5, 10, 0.72);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-rose);
+  box-shadow: 0 8px 32px 0 rgba(225, 29, 72, 0.25);
+}
+
+.glass-panel-crimson {
+  background: rgba(20, 5, 10, 0.88);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-crimson);
+  box-shadow: 0 8px 32px 0 rgba(225, 29, 72, 0.35);
+}
+
+/* Typography utilities */
+.font-serif-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+}
+
+.font-handwritten {
+  font-family: var(--font-handwriting);
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(4, 4, 7, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(253, 230, 138, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(253, 230, 138, 0.4);
+}
+
+/* Reduced motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,9 @@
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: camera=(), geolocation=(), microphone=(self)
+
+/media/*
+  Cache-Control: private, no-store, must-revalidate
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
