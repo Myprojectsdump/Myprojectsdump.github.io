@@ -11,7 +11,7 @@ export const ChapterRail: React.FC = () => {
   const visitedChapters = useExperienceStore((state) => state.visitedChapters);
   const setCurrentChapter = useExperienceStore((state) => state.setCurrentChapter);
 
-  if (!hasEnteredUniverse) return null;
+  if (!hasEnteredUniverse || currentChapter === 'FINAL_GIFT') return null;
 
   const handleChapterClick = (id: ChapterId) => {
     // Free back-and-forth chapter navigation per user request

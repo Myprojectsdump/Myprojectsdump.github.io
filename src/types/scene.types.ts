@@ -20,6 +20,18 @@ export interface CameraPreset {
   fov: number;
 }
 
+export type GiftRevealPhase =
+  | 'ASSEMBLING'
+  | 'ASSEMBLY_COMPLETE'
+  | 'READY_TO_OPEN'
+  | 'UNTYING'
+  | 'OPENING'
+  | 'GIFT_REVEALED'
+  | 'QUIET_MOMENT'
+  | 'POSTSCRIPT_REVEAL'
+  | 'POSTSCRIPT_READY'
+  | 'COMPLETE';
+
 export interface TransientMotionBus {
   actScrollProgress: Record<ChapterId, number>;
   globalScrollY: number;
@@ -35,6 +47,8 @@ export interface TransientMotionBus {
   openingHeartScale: number;
   openingHeartGlow: number;
   openingRingProgress: number[];
+  giftRevealPhase?: GiftRevealPhase;
+  giftSecretCompartmentOpen?: number;
 }
 
 export interface UciTestProbes {
@@ -52,6 +66,14 @@ export interface UciTestProbes {
   giftBoxOpened?: number;
   giftRibbonUntied?: number;
   giftAssemblyProgress?: number;
+  giftRevealPhase?: GiftRevealPhase;
+  giftSecretCompartmentOpen?: number;
+  giftCrestPulseCount?: number;
+  giftRibbonTouchCount?: number;
+  giftOrnamentHighlightCount?: number;
+  giftBoxRotationY?: number;
+  giftBoxRotationX?: number;
+  velvetCardClicked?: boolean;
   vipRedemptionCount?: number;
   activeMicTrackCount: number;
   masterAudioState: string;

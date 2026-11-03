@@ -21,7 +21,7 @@ export const ComfortControls: React.FC = () => {
   return (
     <div className="fixed bottom-4 left-6 z-30 flex items-center gap-2 select-none pointer-events-auto">
       {/* Skip Scene Button */}
-      {currentChapter !== 'AFTER_CREDITS' && (
+      {currentChapter !== 'AFTER_CREDITS' && currentChapter !== 'FINAL_GIFT' && (
         <button
           onClick={skipToNextChapter}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel border border-champagne-gold/20 text-[11px] font-mono tracking-wider text-parchment-warm/70 hover:text-champagne-gold hover:border-champagne-gold/40 transition-colors shadow-glow"

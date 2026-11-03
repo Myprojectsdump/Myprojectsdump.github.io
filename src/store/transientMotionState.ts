@@ -1,6 +1,6 @@
 // src/store/transientMotionState.ts
 
-import { ChapterId, TransientMotionBus } from '../types/scene.types';
+import { ChapterId, GiftRevealPhase, TransientMotionBus } from '../types/scene.types';
 
 export const transientMotionState: TransientMotionBus = {
   actScrollProgress: {
@@ -24,13 +24,50 @@ export const transientMotionState: TransientMotionBus = {
   mirrorClearRatioLive: 0,
   heartbeatHoldSecondsLive: 0,
   candleWindLive: 0,
-  giftBoxUserEuler: { x: 0, y: 0 },
+  giftBoxUserEuler: { x: 0.14, y: 0.32 },
   openingStage: 1,
   openingParticlesConvergence: 0,
   openingHeartScale: 0,
   openingHeartGlow: 0,
   openingRingProgress: [0, 0, 0, 0, 0, 0, 0],
+  giftRevealPhase: 'ASSEMBLING',
+  giftSecretCompartmentOpen: 0,
 };
+
+export function setGiftRevealPhase(phase: GiftRevealPhase): void {
+  transientMotionState.giftRevealPhase = phase;
+  if (typeof window !== 'undefined' && window.__UCI_TEST_PROBES__) {
+    window.__UCI_TEST_PROBES__.giftRevealPhase = phase;
+  }
+}
+
+export function setGiftSecretCompartmentOpen(progress: number): void {
+  transientMotionState.giftSecretCompartmentOpen = progress;
+  if (typeof window !== 'undefined' && window.__UCI_TEST_PROBES__) {
+    window.__UCI_TEST_PROBES__.giftSecretCompartmentOpen = progress;
+  }
+}
+
+export function addGiftBoxUserRotation(deltaX: number, deltaY: number): void {
+  transientMotionState.giftBoxUserEuler.y += deltaX * 0.008;
+  transientMotionState.giftBoxUserEuler.x = Math.max(
+    -0.45,
+    Math.min(0.75, transientMotionState.giftBoxUserEuler.x + deltaY * 0.008)
+  );
+  if (typeof window !== 'undefined' && window.__UCI_TEST_PROBES__) {
+    window.__UCI_TEST_PROBES__.giftBoxRotationY = transientMotionState.giftBoxUserEuler.y;
+    window.__UCI_TEST_PROBES__.giftBoxRotationX = transientMotionState.giftBoxUserEuler.x;
+  }
+}
+
+export function setGiftBoxUserRotation(x: number, y: number): void {
+  transientMotionState.giftBoxUserEuler.x = Math.max(-0.45, Math.min(0.75, x));
+  transientMotionState.giftBoxUserEuler.y = y;
+  if (typeof window !== 'undefined' && window.__UCI_TEST_PROBES__) {
+    window.__UCI_TEST_PROBES__.giftBoxRotationY = y;
+    window.__UCI_TEST_PROBES__.giftBoxRotationX = x;
+  }
+}
 
 export function setOpeningStage(stage: number): void {
   transientMotionState.openingStage = stage;

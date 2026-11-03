@@ -30,7 +30,7 @@ export const TopBrandBar: React.FC = () => {
     };
   }, [menuOpen]);
 
-  if (!hasEnteredUniverse) return null;
+  if (!hasEnteredUniverse || currentChapter === 'FINAL_GIFT') return null;
 
   const currentIndex = CHAPTERS.findIndex((c) => c.id === currentChapter);
   const activeChapterInfo = CHAPTERS[currentIndex] || CHAPTERS[0];

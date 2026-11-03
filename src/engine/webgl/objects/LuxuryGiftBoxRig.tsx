@@ -4,6 +4,11 @@ import React, { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useExperienceStore } from '../../../store/useExperienceStore';
+import {
+  transientMotionState,
+  setGiftSecretCompartmentOpen,
+  addGiftBoxUserRotation,
+} from '../../../store/transientMotionState';
 import { proceduralAudio } from '../../audio/ProceduralAudio';
 
 // =============================================================================
@@ -68,8 +73,10 @@ function createFacetedRubyHeart(N: number = 18): THREE.BufferGeometry {
 }
 
 // =============================================================================
-// MAIN COMPONENT: ROYAL 3D GIFT BOX WITH PIECE-BY-PIECE ASSEMBLY
+// MAIN COMPONENT: ROYAL 3D GIFT BOX WITH PIECE-BY-PIECE ASSEMBLY & SECRET DRAWER
 // =============================================================================
+
+const ASSEMBLY_TOTAL_DURATION = 24.0; // Deliberate, cinematic 8-stage royal craftsmanship
 
 export const LuxuryGiftBoxRig: React.FC = () => {
   const currentChapter = useExperienceStore((state) => state.currentChapter);
@@ -78,8 +85,7 @@ export const LuxuryGiftBoxRig: React.FC = () => {
   const isAssembledInStore = useExperienceStore((state) => state.isGiftAssembled);
   const giftAssemblyNonce = useExperienceStore((state) => state.giftAssemblyNonce);
   const setGiftAssembled = useExperienceStore((state) => state.setGiftAssembled);
-  const untieRibbon = useExperienceStore((state) => state.untieGiftRibbon);
-  const openBox = useExperienceStore((state) => state.openGiftBox);
+  const isMuted = useExperienceStore((state) => state.isMuted);
   const reducedMotion = useExperienceStore((state) => state.reducedMotionChoice);
 
   // Group references
@@ -95,15 +101,29 @@ export const LuxuryGiftBoxRig: React.FC = () => {
   const rightWallRef = useRef<THREE.Group>(null);
   const cornerColumnsRef = useRef<THREE.Group>(null);
   const upperRailsRef = useRef<THREE.Group>(null);
+  const filigreePlatesRef = useRef<THREE.Group>(null);
   const lidHingeGroupRef = useRef<THREE.Group>(null);
   const lidContentGroupRef = useRef<THREE.Group>(null);
   const crownCrestGroupRef = useRef<THREE.Group>(null);
   const rubyHeartRef = useRef<THREE.Mesh>(null);
+  const amberGemsGroupRef = useRef<THREE.Group>(null);
   const ribbonBowGroupRef = useRef<THREE.Group>(null);
+  const bowKnotGroupRef = useRef<THREE.Group>(null);
   const interiorLightRef = useRef<THREE.PointLight>(null);
   const riserRef = useRef<THREE.Group>(null);
+  const risingPetalsGroupRef = useRef<THREE.Group>(null);
   const claspLeftRef = useRef<THREE.Mesh>(null);
   const claspRightRef = useRef<THREE.Mesh>(null);
+
+  // Concealed Secret Compartment Drawer & Folded Note
+  const secretDrawerGroupRef = useRef<THREE.Group>(null);
+  const secretNote3DRef = useRef<THREE.Group>(null);
+  const secretGlimmerLightRef = useRef<THREE.PointLight>(null);
+
+  // Interactive discovery tactile boost refs
+  const rubyPulseBoostRef = useRef(0);
+  const ribbonBounceBoostRef = useRef(0);
+  const ornamentGlowBoostRef = useRef(0);
 
   // Assembly State & Timer
   const assemblyTimeRef = useRef(0);
@@ -123,8 +143,25 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     chimeTriggeredRef.current = {};
     if (window.__UCI_TEST_PROBES__) {
       window.__UCI_TEST_PROBES__.giftAssemblyProgress = 0;
+      window.__UCI_TEST_PROBES__.giftCrestPulseCount =
+        window.__UCI_TEST_PROBES__.giftCrestPulseCount ?? 0;
+      window.__UCI_TEST_PROBES__.giftRibbonTouchCount =
+        window.__UCI_TEST_PROBES__.giftRibbonTouchCount ?? 0;
+      window.__UCI_TEST_PROBES__.giftOrnamentHighlightCount =
+        window.__UCI_TEST_PROBES__.giftOrnamentHighlightCount ?? 0;
     }
   }, [giftAssemblyNonce]);
+
+  // If store already marks gift assembled or opened (e.g. re-entry or test fast-forward), sync timer
+  useEffect(() => {
+    if (isAssembledInStore || isBoxOpened) {
+      assemblyTimeRef.current = ASSEMBLY_TOTAL_DURATION;
+      hasFinishedRef.current = true;
+      if (window.__UCI_TEST_PROBES__) {
+        window.__UCI_TEST_PROBES__.giftAssemblyProgress = 1.0;
+      }
+    }
+  }, [isAssembledInStore, isBoxOpened]);
 
   // Luxury Materials
   const materials = useMemo(() => {
@@ -146,13 +183,15 @@ export const LuxuryGiftBoxRig: React.FC = () => {
       }),
       antiqueGold: new THREE.MeshStandardMaterial({
         color: new THREE.Color('#D9AE50'),
+        emissive: new THREE.Color('#B45309'),
+        emissiveIntensity: 0.08,
         roughness: 0.25,
         metalness: 0.85,
       }),
       crimsonSatin: new THREE.MeshStandardMaterial({
         color: new THREE.Color('#9E1A33'),
-        roughness: 0.38,
-        metalness: 0.12,
+        roughness: 0.36,
+        metalness: 0.14,
       }),
       rubyGem: new THREE.MeshStandardMaterial({
         color: new THREE.Color('#E11D48'),
@@ -160,6 +199,14 @@ export const LuxuryGiftBoxRig: React.FC = () => {
         emissiveIntensity: 0.75,
         roughness: 0.08,
         metalness: 0.15,
+        flatShading: true,
+      }),
+      amberGem: new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#F59E0B'),
+        emissive: new THREE.Color('#92400E'),
+        emissiveIntensity: 0.65,
+        roughness: 0.1,
+        metalness: 0.2,
         flatShading: true,
       }),
       burgundyVelvet: new THREE.MeshStandardMaterial({
@@ -174,18 +221,24 @@ export const LuxuryGiftBoxRig: React.FC = () => {
         metalness: 0.88,
         roughness: 0.2,
       }),
+      ivoryParchment: new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#FFF9EA'),
+        emissive: new THREE.Color('#FDE68A'),
+        emissiveIntensity: 0.15,
+        roughness: 0.65,
+        metalness: 0.05,
+      }),
     };
   }, []);
 
-  // Ruby Gem Geometry
   const rubyHeartGeometry = useMemo(() => createFacetedRubyHeart(16), []);
 
-  // Swirling Golden Stardust Geometry (300 points)
+  // Swirling Golden Stardust Geometry (240 points - restrained & smooth)
   const stardustGeometry = useMemo(() => {
-    const count = 300;
+    const count = 240;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const radius = 0.5 + Math.random() * 2.2;
+      const radius = 0.55 + Math.random() * 2.1;
       const angle = Math.random() * Math.PI * 2;
       const y = (Math.random() - 0.5) * 1.8;
       positions[i * 3] = Math.cos(angle) * radius;
@@ -197,7 +250,7 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     return geom;
   }, []);
 
-  // 8 Constellation Diamond Stars around lid perimeter
+  // 8 Constellation Diamond Stars & Amber Gemstones around lid perimeter
   const starInlayPositions = useMemo(() => {
     const positions: [number, number, number][] = [];
     const r = 0.68;
@@ -207,6 +260,52 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     }
     return positions;
   }, []);
+
+  // Helper to emit discovery notification to UI
+  const dispatchDiscovery = (detailType: 'crest' | 'ribbon' | 'ornaments') => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('uci:gift-discovery', { detail: detailType }));
+    }
+  };
+
+  // Interactive Touchpoint 1: Tapping the Ruby Heart Crest
+  const handleCrestClick = (e: any) => {
+    e.stopPropagation();
+    rubyPulseBoostRef.current = 1.0;
+    if (!isMuted) {
+      proceduralAudio.playConstellationStarTone(5);
+    }
+    if (window.__UCI_TEST_PROBES__) {
+      window.__UCI_TEST_PROBES__.giftCrestPulseCount =
+        (window.__UCI_TEST_PROBES__.giftCrestPulseCount ?? 0) + 1;
+    }
+    dispatchDiscovery('crest');
+  };
+
+  // Interactive Touchpoint 2: Tapping or dragging the Crimson Satin Ribbon
+  const handleRibbonInteraction = (e: any) => {
+    e.stopPropagation();
+    ribbonBounceBoostRef.current = 1.0;
+    if (!isMuted) {
+      proceduralAudio.playMirrorNoteChime();
+    }
+    if (window.__UCI_TEST_PROBES__) {
+      window.__UCI_TEST_PROBES__.giftRibbonTouchCount =
+        (window.__UCI_TEST_PROBES__.giftRibbonTouchCount ?? 0) + 1;
+    }
+    dispatchDiscovery('ribbon');
+  };
+
+  // Interactive Touchpoint 3: Hovering or tapping the Gold Ornaments
+  const handleOrnamentHighlight = (e: any) => {
+    e.stopPropagation();
+    ornamentGlowBoostRef.current = 1.0;
+    if (window.__UCI_TEST_PROBES__) {
+      window.__UCI_TEST_PROBES__.giftOrnamentHighlightCount =
+        (window.__UCI_TEST_PROBES__.giftOrnamentHighlightCount ?? 0) + 1;
+    }
+    dispatchDiscovery('ornaments');
+  };
 
   // 360° Pointer Drag Handlers
   const handlePointerDown = (e: any) => {
@@ -225,35 +324,74 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     const deltaY = e.clientY - previousPointerRef.current.y;
     previousPointerRef.current = { x: e.clientX, y: e.clientY };
 
-    targetRotationRef.current.y += deltaX * 0.008;
-    targetRotationRef.current.x = Math.max(
-      -0.45,
-      Math.min(0.75, targetRotationRef.current.x + deltaY * 0.008)
-    );
-  };
-
-  const handleTriggerOpen = (e: any) => {
-    e.stopPropagation();
-    if (!isRibbonUntied) untieRibbon();
-    if (!isBoxOpened) openBox();
+    addGiftBoxUserRotation(deltaX, deltaY);
+    targetRotationRef.current.y = transientMotionState.giftBoxUserEuler.y;
+    targetRotationRef.current.x = transientMotionState.giftBoxUserEuler.x;
   };
 
   useFrame((state, delta) => {
     if (currentChapter !== 'FINAL_GIFT') return;
 
-    // Responsive position: On desktop (window.innerWidth >= 1024), anchor leftward squarely on pedestal (-0.85). On mobile, center (0).
+    const currentPhase = transientMotionState.giftRevealPhase || 'ASSEMBLING';
+    const isQuietOrPostscript =
+      currentPhase === 'QUIET_MOMENT' ||
+      currentPhase === 'POSTSCRIPT_REVEAL' ||
+      currentPhase === 'POSTSCRIPT_READY' ||
+      currentPhase === 'COMPLETE';
+    const isSecretRevealing =
+      currentPhase === 'POSTSCRIPT_REVEAL' ||
+      currentPhase === 'POSTSCRIPT_READY' ||
+      currentPhase === 'COMPLETE';
+
+    // Responsive positioning & subtle camera/stage framing per phase
     if (rootGroupRef.current) {
       const isMobile = state.size.width < 1024;
       const targetX = isMobile ? 0 : -0.85;
-      const targetY = -0.28;
-      rootGroupRef.current.position.x = THREE.MathUtils.damp(rootGroupRef.current.position.x, targetX, 5.0, delta);
-      rootGroupRef.current.position.y = THREE.MathUtils.damp(rootGroupRef.current.position.y, targetY, 5.0, delta);
+      const targetY = isSecretRevealing ? -0.18 : -0.28;
+      const targetZ = currentPhase === 'QUIET_MOMENT' ? -0.35 : isSecretRevealing ? 0.25 : 0;
+
+      rootGroupRef.current.position.x = THREE.MathUtils.damp(
+        rootGroupRef.current.position.x,
+        targetX,
+        4.5,
+        delta
+      );
+      rootGroupRef.current.position.y = THREE.MathUtils.damp(
+        rootGroupRef.current.position.y,
+        targetY,
+        4.5,
+        delta
+      );
+      rootGroupRef.current.position.z = THREE.MathUtils.damp(
+        rootGroupRef.current.position.z,
+        targetZ,
+        3.5,
+        delta
+      );
     }
 
-    // Faster, brisk, cinematic timing: ~11.5 seconds total!
-    const isReducedMotion = reducedMotion === 'reduce';
-    const timeSpeed = isReducedMotion ? 3.5 : 1.0;
-    assemblyTimeRef.current += delta * timeSpeed;
+    // Decay interactive tactile boosts smoothly
+    rubyPulseBoostRef.current = THREE.MathUtils.damp(rubyPulseBoostRef.current, 0, 3.0, delta);
+    ribbonBounceBoostRef.current = THREE.MathUtils.damp(ribbonBounceBoostRef.current, 0, 5.0, delta);
+    ornamentGlowBoostRef.current = THREE.MathUtils.damp(ornamentGlowBoostRef.current, 0, 2.5, delta);
+
+    // Apply ornament highlight emissive response
+    materials.antiqueGold.emissiveIntensity = 0.08 + ornamentGlowBoostRef.current * 0.65;
+    materials.rubyGem.emissiveIntensity = 0.75 + rubyPulseBoostRef.current * 1.4;
+
+    // Coordinated 8-Stage Assembly Timeline (24s normal, 4.5s reduced motion)
+    const isReducedMotion =
+      reducedMotion === 'reduce' ||
+      (reducedMotion === 'system' &&
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const timeSpeed = isReducedMotion ? 5.5 : 1.0;
+
+    if (!hasFinishedRef.current) {
+      assemblyTimeRef.current += delta * timeSpeed;
+    } else {
+      assemblyTimeRef.current = ASSEMBLY_TOTAL_DURATION;
+    }
     const t = assemblyTimeRef.current;
 
     const stage = (start: number, end: number) => {
@@ -261,120 +399,140 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     };
 
     // =========================================================================
-    // 1. STARDUST PARTICLES (0s - 1.8s)
+    // STAGE 1: PEDESTAL ALIGNMENT & GOLDEN STARDUST (0s - 3.0s)
     // =========================================================================
     if (stardustPointsRef.current) {
-      const p1 = stage(0, 1.8);
-      const pEnd = stage(9.5, 11.5);
-      const opacity = (1 - pEnd) * (0.2 + p1 * 0.6);
-      stardustPointsRef.current.rotation.y += delta * 0.55;
+      const p1 = stage(0, 2.8);
+      const pEnd = stage(20.5, 24.0);
+      let opacity = (1 - pEnd * 0.65) * (0.2 + p1 * 0.55);
+      if (isQuietOrPostscript) opacity = 0.14;
+      stardustPointsRef.current.rotation.y += delta * (isQuietOrPostscript ? 0.15 : 0.42);
       (stardustPointsRef.current.material as THREE.PointsMaterial).opacity = opacity;
     }
 
     // =========================================================================
-    // 2. FOUNDATION BASEPLATE (1.5s - 3.2s)
+    // STAGE 2: FOUNDATION BASEPLATE & REINFORCED CORNERS (2.2s - 5.8s)
     // =========================================================================
     if (foundationGroupRef.current) {
-      const pFound = stage(1.5, 3.2);
-      foundationGroupRef.current.position.y = THREE.MathUtils.lerp(-2.5, -0.48, pFound);
-      foundationGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(0.3, 1.0, pFound));
+      const pFound = stage(2.2, 5.8);
+      foundationGroupRef.current.position.y = THREE.MathUtils.lerp(-2.4, -0.48, pFound);
+      foundationGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(0.35, 1.0, pFound));
       if (pFound >= 0.99 && !chimeTriggeredRef.current.found) {
         chimeTriggeredRef.current.found = true;
-        proceduralAudio.playStarBridgeChime();
+        if (!isMuted) proceduralAudio.playStarBridgeChime();
       }
     }
 
     // =========================================================================
-    // 3. FOUR ROYAL BURGUNDY WALLS (3.2s - 5.5s)
+    // STAGE 3: FOUR ROYAL BURGUNDY WALLS (5.8s - 10.6s)
     // =========================================================================
-    // Front Wall (z: +3.0 -> +0.76)
     if (frontWallRef.current) {
-      const pFront = stage(3.2, 5.0);
-      frontWallRef.current.position.z = THREE.MathUtils.lerp(3.0, 0.76, pFront);
-      frontWallRef.current.position.y = THREE.MathUtils.lerp(-0.5, 0.0, pFront);
-      frontWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.4, 1.0, pFront));
+      const pFront = stage(5.8, 8.8);
+      frontWallRef.current.position.z = THREE.MathUtils.lerp(2.8, 0.76, pFront);
+      frontWallRef.current.position.y = THREE.MathUtils.lerp(-0.4, 0.0, pFront);
+      frontWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.45, 1.0, pFront));
     }
-    // Back Wall (z: -3.0 -> -0.76)
     if (backWallRef.current) {
-      const pBack = stage(3.4, 5.2);
-      backWallRef.current.position.z = THREE.MathUtils.lerp(-3.0, -0.76, pBack);
-      backWallRef.current.position.y = THREE.MathUtils.lerp(-0.5, 0.0, pBack);
-      backWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.4, 1.0, pBack));
+      const pBack = stage(6.4, 9.4);
+      backWallRef.current.position.z = THREE.MathUtils.lerp(-2.8, -0.76, pBack);
+      backWallRef.current.position.y = THREE.MathUtils.lerp(-0.4, 0.0, pBack);
+      backWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.45, 1.0, pBack));
     }
-    // Left Wall (x: -3.0 -> -0.76)
     if (leftWallRef.current) {
-      const pLeft = stage(3.6, 5.4);
-      leftWallRef.current.position.x = THREE.MathUtils.lerp(-3.0, -0.76, pLeft);
-      leftWallRef.current.position.y = THREE.MathUtils.lerp(-0.5, 0.0, pLeft);
-      leftWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.4, 1.0, pLeft));
+      const pLeft = stage(7.0, 10.0);
+      leftWallRef.current.position.x = THREE.MathUtils.lerp(-2.8, -0.76, pLeft);
+      leftWallRef.current.position.y = THREE.MathUtils.lerp(-0.4, 0.0, pLeft);
+      leftWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.45, 1.0, pLeft));
     }
-    // Right Wall (x: +3.0 -> +0.76)
     if (rightWallRef.current) {
-      const pRight = stage(3.8, 5.5);
-      rightWallRef.current.position.x = THREE.MathUtils.lerp(3.0, 0.76, pRight);
-      rightWallRef.current.position.y = THREE.MathUtils.lerp(-0.5, 0.0, pRight);
-      rightWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.4, 1.0, pRight));
+      const pRight = stage(7.6, 10.6);
+      rightWallRef.current.position.x = THREE.MathUtils.lerp(2.8, 0.76, pRight);
+      rightWallRef.current.position.y = THREE.MathUtils.lerp(-0.4, 0.0, pRight);
+      rightWallRef.current.scale.setScalar(THREE.MathUtils.lerp(0.45, 1.0, pRight));
     }
 
     // =========================================================================
-    // 4. GOLD CORNER COLUMNS & UPPER RAILS (5.5s - 7.2s)
+    // STAGE 4: ROYAL DETAILING — GOLD COLUMNS, RAILS & FILIGREE (10.6s - 14.5s)
     // =========================================================================
     if (cornerColumnsRef.current) {
-      const pCols = stage(5.5, 7.0);
-      cornerColumnsRef.current.position.y = THREE.MathUtils.lerp(2.2, 0.0, pCols);
+      const pCols = stage(10.6, 13.2);
+      cornerColumnsRef.current.position.y = THREE.MathUtils.lerp(2.1, 0.0, pCols);
       cornerColumnsRef.current.scale.setScalar(THREE.MathUtils.lerp(0.5, 1.0, pCols));
     }
     if (upperRailsRef.current) {
-      const pRails = stage(6.0, 7.2);
+      const pRails = stage(11.8, 14.2);
       upperRailsRef.current.position.y = THREE.MathUtils.lerp(1.8, 0.44, pRails);
       upperRailsRef.current.scale.setScalar(THREE.MathUtils.lerp(0.6, 1.0, pRails));
     }
+    if (filigreePlatesRef.current) {
+      const pFil = stage(12.4, 14.5);
+      filigreePlatesRef.current.scale.setScalar(THREE.MathUtils.lerp(0.01, 1.0, pFil));
+    }
 
     // =========================================================================
-    // 5. ORNAMENTAL HINGED LID (7.2s - 9.0s)
+    // STAGE 5: MULTI-LAYERED HINGED LID CONSTRUCTION (14.5s - 18.0s)
     // =========================================================================
     if (lidContentGroupRef.current) {
-      const pLid = stage(7.2, 9.0);
-      lidContentGroupRef.current.position.y = THREE.MathUtils.lerp(2.8, 0.0, pLid);
-      lidContentGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(0.5, 1.0, pLid));
+      const pLid = stage(14.5, 18.0);
+      lidContentGroupRef.current.position.y = THREE.MathUtils.lerp(2.6, 0.0, pLid);
+      lidContentGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(0.55, 1.0, pLid));
       if (pLid >= 0.99 && !chimeTriggeredRef.current.lid) {
         chimeTriggeredRef.current.lid = true;
-        proceduralAudio.playConstellationStarTone(7);
+        if (!isMuted) proceduralAudio.playConstellationStarTone(7);
       }
     }
 
     // =========================================================================
-    // 6. ROYAL CROWN CREST & RADIANT RUBY GEM (8.8s - 10.2s)
+    // STAGE 6: ROYAL CROWN CREST, RUBY HEART & AMBER GEMSTONES (17.8s - 20.8s)
     // =========================================================================
     if (crownCrestGroupRef.current) {
-      const pCrest = stage(8.8, 10.2);
-      crownCrestGroupRef.current.position.y = THREE.MathUtils.lerp(2.0, 0.08, pCrest);
+      const pCrest = stage(17.8, 20.2);
+      crownCrestGroupRef.current.position.y = THREE.MathUtils.lerp(1.9, 0.08, pCrest);
       crownCrestGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(0.2, 1.0, pCrest));
     }
     if (rubyHeartRef.current) {
-      const pRuby = stage(9.2, 10.2);
-      rubyHeartRef.current.scale.setScalar(THREE.MathUtils.lerp(0.001, 0.16, pRuby));
-      const pulse = 1.0 + Math.sin(state.clock.elapsedTime * 3.0) * 0.05;
-      rubyHeartRef.current.scale.multiplyScalar(pulse);
+      const pRuby = stage(18.6, 20.6);
+      const baseScale = THREE.MathUtils.lerp(0.001, 0.16, pRuby);
+      const pulse =
+        1.0 +
+        Math.sin(state.clock.elapsedTime * 3.0) * 0.05 +
+        rubyPulseBoostRef.current * 0.28;
+      rubyHeartRef.current.scale.setScalar(baseScale * pulse);
+    }
+    if (amberGemsGroupRef.current) {
+      const pAmber = stage(19.0, 20.8);
+      amberGemsGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(0.001, 1.0, pAmber));
     }
 
     // =========================================================================
-    // 7. CRIMSON SATIN RIBBON & GRAND BOW (10.0s - 11.5s)
+    // STAGE 7: CRIMSON SATIN RIBBON & ELABORATE 3D BOW (20.5s - 23.2s)
     // =========================================================================
     if (ribbonBowGroupRef.current) {
-      const pRibbon = stage(10.0, 11.5);
+      const pRibbon = stage(20.5, 23.2);
       let s = pRibbon;
-      // When user unties, smoothly shrink and slide off
       if (isRibbonUntied) {
-        s = THREE.MathUtils.damp(ribbonBowGroupRef.current.scale.x, 0.0, 5.0, delta);
+        s = THREE.MathUtils.damp(ribbonBowGroupRef.current.scale.x, 0.0, 4.2, delta);
+      } else {
+        const bounce = 1.0 + Math.sin(ribbonBounceBoostRef.current * Math.PI) * 0.12;
+        s *= bounce;
       }
       ribbonBowGroupRef.current.scale.set(s, s, s);
     }
+    if (bowKnotGroupRef.current) {
+      // Relax bow loops slightly as ribbon unties
+      const targetKnotY = isRibbonUntied ? 0.25 : 0;
+      bowKnotGroupRef.current.position.y = THREE.MathUtils.damp(
+        bowKnotGroupRef.current.position.y,
+        targetKnotY,
+        4.0,
+        delta
+      );
+    }
 
     // =========================================================================
-    // 8. ASSEMBLY COMPLETION TRIGGER (~11.5s)
+    // STAGE 8: FINAL FINISHING & HERO COMPLETION (23.2s - 24.0s)
     // =========================================================================
-    const overallProgress = Math.min(1.0, t / 11.5);
+    const overallProgress = Math.min(1.0, t / ASSEMBLY_TOTAL_DURATION);
     if (window.__UCI_TEST_PROBES__) {
       window.__UCI_TEST_PROBES__.giftAssemblyProgress = overallProgress;
     }
@@ -387,25 +545,55 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     }
 
     // =========================================================================
-    // 9. 360° ORBIT & INERTIA DAMPING
+    // 9. 360° ORBIT & CAMERA/ROTATION CHOREOGRAPHY
     // =========================================================================
     if (orbitGroupRef.current) {
+      const userRotY = transientMotionState.giftBoxUserEuler.y;
+      const userRotX = transientMotionState.giftBoxUserEuler.x;
+
+      if (
+        !isDraggingRef.current &&
+        !hasFinishedRef.current &&
+        Math.abs(userRotY - 0.32) < 0.001 &&
+        Math.abs(userRotX - 0.14) < 0.001
+      ) {
+        // Gentle craftsmanship inspection rotation during assembly before user interacts
+        targetRotationRef.current.y = 0.32 + Math.sin(t * 0.35) * 0.22;
+        targetRotationRef.current.x = 0.14 + Math.cos(t * 0.25) * 0.05;
+      } else if (!isDraggingRef.current && isSecretRevealing) {
+        // Orient gently toward the secret front-bottom drawer during postscript reveal
+        targetRotationRef.current.y = THREE.MathUtils.damp(
+          targetRotationRef.current.y,
+          0.18 + (userRotY - 0.32),
+          2.5,
+          delta
+        );
+        targetRotationRef.current.x = THREE.MathUtils.damp(
+          targetRotationRef.current.x,
+          0.12 + (userRotX - 0.14),
+          2.5,
+          delta
+        );
+      } else {
+        targetRotationRef.current.y = userRotY;
+        targetRotationRef.current.x = userRotX;
+      }
+
       currentRotationRef.current.x = THREE.MathUtils.damp(
         currentRotationRef.current.x,
         targetRotationRef.current.x,
-        6.5,
+        8.0,
         delta
       );
       currentRotationRef.current.y = THREE.MathUtils.damp(
         currentRotationRef.current.y,
         targetRotationRef.current.y,
-        6.5,
+        8.0,
         delta
       );
 
-      // Subtle breathing idle if not dragging
       if (!isDraggingRef.current && hasFinishedRef.current) {
-        const idleBob = Math.sin(state.clock.elapsedTime * 1.2) * 0.02;
+        const idleBob = Math.sin(state.clock.elapsedTime * 1.2) * 0.018;
         orbitGroupRef.current.position.y = idleBob;
       }
 
@@ -421,7 +609,7 @@ export const LuxuryGiftBoxRig: React.FC = () => {
       lidHingeGroupRef.current.rotation.x = THREE.MathUtils.damp(
         lidHingeGroupRef.current.rotation.x,
         targetLidAngle,
-        4.0,
+        3.8,
         delta
       );
     }
@@ -446,14 +634,14 @@ export const LuxuryGiftBoxRig: React.FC = () => {
     }
 
     // =========================================================================
-    // 12. INTERIOR LIGHT BLOOM & GIFT PEDESTAL RISER
+    // 12. INTERIOR LIGHT BLOOM, VELVET RISER & RISING ROSE PETALS
     // =========================================================================
     if (interiorLightRef.current) {
-      const targetIntensity = isBoxOpened ? 3.8 : 0.3;
+      const targetIntensity = isBoxOpened ? (isQuietOrPostscript ? 2.1 : 3.8) : 0.3;
       interiorLightRef.current.intensity = THREE.MathUtils.damp(
         interiorLightRef.current.intensity,
         targetIntensity,
-        4.5,
+        4.2,
         delta
       );
     }
@@ -464,6 +652,65 @@ export const LuxuryGiftBoxRig: React.FC = () => {
         riserRef.current.position.y,
         targetY,
         3.5,
+        delta
+      );
+    }
+
+    if (risingPetalsGroupRef.current) {
+      const targetPetalY = isBoxOpened ? 0.85 : 0.0;
+      const targetPetalScale = isBoxOpened ? 1.0 : 0.001;
+      risingPetalsGroupRef.current.position.y = THREE.MathUtils.damp(
+        risingPetalsGroupRef.current.position.y,
+        targetPetalY,
+        2.2,
+        delta
+      );
+      risingPetalsGroupRef.current.scale.setScalar(
+        THREE.MathUtils.damp(risingPetalsGroupRef.current.scale.x, targetPetalScale, 3.0, delta)
+      );
+      risingPetalsGroupRef.current.rotation.y += delta * 0.45;
+    }
+
+    // =========================================================================
+    // 13. CONCEALED SECRET COMPARTMENT DRAWER & FOLDED NOTE (Plot Twist)
+    // =========================================================================
+    if (secretDrawerGroupRef.current) {
+      const targetDrawerZ = isSecretRevealing ? 0.54 : 0.0;
+      secretDrawerGroupRef.current.position.z = THREE.MathUtils.damp(
+        secretDrawerGroupRef.current.position.z,
+        targetDrawerZ,
+        3.2,
+        delta
+      );
+      const drawerProgress = Math.max(0, Math.min(1, secretDrawerGroupRef.current.position.z / 0.52));
+      setGiftSecretCompartmentOpen(drawerProgress);
+    }
+
+    if (secretNote3DRef.current) {
+      const targetNoteY = isSecretRevealing ? 0.14 : 0.02;
+      const targetNoteRotX = isSecretRevealing ? -0.35 : 0;
+      secretNote3DRef.current.position.y = THREE.MathUtils.damp(
+        secretNote3DRef.current.position.y,
+        targetNoteY,
+        3.0,
+        delta
+      );
+      secretNote3DRef.current.rotation.x = THREE.MathUtils.damp(
+        secretNote3DRef.current.rotation.x,
+        targetNoteRotX,
+        3.0,
+        delta
+      );
+    }
+
+    if (secretGlimmerLightRef.current) {
+      const glimmerPulse = isSecretRevealing
+        ? 2.2 + Math.sin(state.clock.elapsedTime * 5.0) * 0.8
+        : 0;
+      secretGlimmerLightRef.current.intensity = THREE.MathUtils.damp(
+        secretGlimmerLightRef.current.intensity,
+        glimmerPulse,
+        4.0,
         delta
       );
     }
@@ -496,17 +743,28 @@ export const LuxuryGiftBoxRig: React.FC = () => {
       {/* 0. Swirling Golden Stardust Cloud */}
       <points ref={stardustPointsRef} geometry={stardustGeometry}>
         <pointsMaterial
-          size={0.035}
+          size={0.032}
           color="#FDE68A"
           transparent
-          opacity={0.6}
+          opacity={0.55}
           blending={THREE.AdditiveBlending}
         />
       </points>
 
       <group ref={orbitGroupRef}>
+        {/* Invisible Interactive Hit Box for 3D Direct Mesh Raycasting */}
+        <mesh
+          visible={false}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerMove={handlePointerMove}
+        >
+          <boxGeometry args={[3.2, 3.2, 3.2]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+
         {/* ================================================================= */}
-        {/* STAGE 1: FOUNDATION BASEPLATE & CORNER SUPPORTS */}
+        {/* STAGE 2: FOUNDATION BASEPLATE, CORNERS & SECRET COMPARTMENT       */}
         {/* ================================================================= */}
         <group ref={foundationGroupRef} name="FoundationGroup" position={[0, -0.48, 0]}>
           {/* Main Structural Plate */}
@@ -514,7 +772,11 @@ export const LuxuryGiftBoxRig: React.FC = () => {
             <boxGeometry args={[1.62, 0.08, 1.62]} />
           </mesh>
           {/* Outer Polished Gold Lower Bevel Rail */}
-          <mesh material={materials.champagneGold} position={[0, -0.02, 0]}>
+          <mesh
+            material={materials.champagneGold}
+            position={[0, -0.02, 0]}
+            onClick={handleOrnamentHighlight}
+          >
             <boxGeometry args={[1.72, 0.06, 1.72]} />
           </mesh>
           {/* 4 Sculpted Gold Corner Footings */}
@@ -528,36 +790,69 @@ export const LuxuryGiftBoxRig: React.FC = () => {
               key={`footing-${idx}`}
               material={materials.champagneGold}
               position={[x, y, z]}
+              onClick={handleOrnamentHighlight}
             >
               <boxGeometry args={[0.18, 0.08, 0.18]} />
             </mesh>
           ))}
+
+          {/* CONCEALED SECRET COMPARTMENT DRAWER (Pedestal-Facing Front Edge) */}
+          <group ref={secretDrawerGroupRef} name="SecretCompartmentDrawer" position={[0, 0.01, 0.35]}>
+            {/* Secret Drawer Tray */}
+            <mesh material={materials.wineLacquer} position={[0, 0, 0]}>
+              <boxGeometry args={[0.72, 0.065, 0.56]} />
+            </mesh>
+            {/* Gold Filigree Drawer Faceplate */}
+            <mesh material={materials.champagneGold} position={[0, 0, 0.285]}>
+              <boxGeometry args={[0.76, 0.075, 0.02]} />
+            </mesh>
+            {/* Tiny Ruby Heart Drawer Pull */}
+            <mesh material={materials.rubyGem} position={[0, 0, 0.305]}>
+              <octahedronGeometry args={[0.028, 0]} />
+            </mesh>
+
+            {/* 3D Folded Ivory & Burgundy Secret Postscript Note Inside Drawer */}
+            <group ref={secretNote3DRef} position={[0, 0.035, 0.08]}>
+              <mesh material={materials.ivoryParchment}>
+                <boxGeometry args={[0.46, 0.018, 0.32]} />
+              </mesh>
+              {/* Fine Burgundy Satin Band & Gold Heart Seal on Note */}
+              <mesh material={materials.crimsonSatin} position={[0, 0.011, 0]}>
+                <boxGeometry args={[0.47, 0.006, 0.05]} />
+              </mesh>
+              <mesh material={materials.champagneGold} position={[0, 0.016, 0]}>
+                <cylinderGeometry args={[0.038, 0.038, 0.008, 16]} />
+              </mesh>
+            </group>
+
+            {/* Secret Glimmer Point Light */}
+            <pointLight
+              ref={secretGlimmerLightRef}
+              position={[0, 0.12, 0.36]}
+              color="#FDE68A"
+              intensity={0}
+              distance={2.2}
+            />
+          </group>
         </group>
 
         {/* ================================================================= */}
-        {/* STAGE 2: FOUR ROYAL BURGUNDY WALLS (With Celestial Dials) */}
+        {/* STAGE 3: FOUR ROYAL BURGUNDY WALLS                                */}
         {/* ================================================================= */}
         {/* Front Wall */}
         <group ref={frontWallRef} name="FrontWallGroup" position={[0, 0, 0.76]}>
           <mesh material={materials.burgundyEnamel}>
             <boxGeometry args={[1.56, 0.94, 0.06]} />
           </mesh>
-          {/* Gold Filigree Inset Border */}
-          <mesh material={materials.champagneGold} position={[0, 0, 0.035]}>
+          <mesh
+            material={materials.champagneGold}
+            position={[0, 0, 0.035]}
+            onClick={handleOrnamentHighlight}
+          >
             <boxGeometry args={[1.44, 0.82, 0.015]} />
           </mesh>
           <mesh material={materials.burgundyEnamel} position={[0, 0, 0.042]}>
             <boxGeometry args={[1.36, 0.74, 0.01]} />
-          </mesh>
-          {/* Central Celestial Astrological Dial Disc */}
-          <mesh material={materials.antiqueGold} position={[0, 0, 0.052]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.26, 0.26, 0.015, 32]} />
-          </mesh>
-          <mesh material={materials.wineLacquer} position={[0, 0, 0.062]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.21, 0.21, 0.01, 32]} />
-          </mesh>
-          <mesh material={materials.champagneGold} position={[0, 0, 0.07]}>
-            <torusGeometry args={[0.16, 0.015, 12, 32]} />
           </mesh>
         </group>
 
@@ -567,10 +862,18 @@ export const LuxuryGiftBoxRig: React.FC = () => {
             <boxGeometry args={[1.56, 0.94, 0.06]} />
           </mesh>
           {/* Rear Hinge Anchor Blocks */}
-          <mesh material={materials.champagneGold} position={[-0.45, 0.44, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh
+            material={materials.champagneGold}
+            position={[-0.45, 0.44, 0]}
+            rotation={[0, 0, Math.PI / 2]}
+          >
             <cylinderGeometry args={[0.04, 0.04, 0.16, 16]} />
           </mesh>
-          <mesh material={materials.champagneGold} position={[0.45, 0.44, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh
+            material={materials.champagneGold}
+            position={[0.45, 0.44, 0]}
+            rotation={[0, 0, Math.PI / 2]}
+          >
             <cylinderGeometry args={[0.04, 0.04, 0.16, 16]} />
           </mesh>
         </group>
@@ -580,10 +883,6 @@ export const LuxuryGiftBoxRig: React.FC = () => {
           <mesh material={materials.burgundyEnamel} rotation={[0, Math.PI / 2, 0]}>
             <boxGeometry args={[1.44, 0.94, 0.06]} />
           </mesh>
-          {/* Celestial Dial Disc on Left Face */}
-          <mesh material={materials.antiqueGold} position={[-0.04, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.24, 0.24, 0.015, 32]} />
-          </mesh>
         </group>
 
         {/* Right Wall */}
@@ -591,16 +890,17 @@ export const LuxuryGiftBoxRig: React.FC = () => {
           <mesh material={materials.burgundyEnamel} rotation={[0, Math.PI / 2, 0]}>
             <boxGeometry args={[1.44, 0.94, 0.06]} />
           </mesh>
-          {/* Celestial Dial Disc on Right Face */}
-          <mesh material={materials.antiqueGold} position={[0.04, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.24, 0.24, 0.015, 32]} />
-          </mesh>
         </group>
 
         {/* ================================================================= */}
-        {/* STAGE 3: GOLD CORNER COLUMNS & UPPER RAILS */}
+        {/* STAGE 4: ROYAL DETAILING — GOLD COLUMNS, RAILS & ENGRAVED PLATES  */}
         {/* ================================================================= */}
-        <group ref={cornerColumnsRef} name="CornerColumnsGroup">
+        <group
+          ref={cornerColumnsRef}
+          name="CornerColumnsGroup"
+          onClick={handleOrnamentHighlight}
+          onPointerOver={handleOrnamentHighlight}
+        >
           {[
             [-0.78, 0, -0.78],
             [0.78, 0, -0.78],
@@ -613,27 +913,75 @@ export const LuxuryGiftBoxRig: React.FC = () => {
           ))}
         </group>
 
-        <group ref={upperRailsRef} name="UpperRailsGroup" position={[0, 0.44, 0]}>
+        <group
+          ref={upperRailsRef}
+          name="UpperRailsGroup"
+          position={[0, 0.44, 0]}
+          onClick={handleOrnamentHighlight}
+        >
           <mesh material={materials.champagneGold}>
             <boxGeometry args={[1.68, 0.05, 1.68]} />
+          </mesh>
+        </group>
+
+        {/* Engraved Filigree Medallions on Front, Left, and Right */}
+        <group
+          ref={filigreePlatesRef}
+          name="FiligreePlatesGroup"
+          onClick={handleOrnamentHighlight}
+          onPointerOver={handleOrnamentHighlight}
+        >
+          {/* Front Celestial Astrological Dial Disc */}
+          <mesh
+            material={materials.antiqueGold}
+            position={[0, 0, 0.812]}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <cylinderGeometry args={[0.26, 0.26, 0.015, 32]} />
+          </mesh>
+          <mesh
+            material={materials.wineLacquer}
+            position={[0, 0, 0.822]}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <cylinderGeometry args={[0.21, 0.21, 0.01, 32]} />
+          </mesh>
+          <mesh material={materials.champagneGold} position={[0, 0, 0.83]}>
+            <torusGeometry args={[0.16, 0.015, 12, 32]} />
+          </mesh>
+
+          {/* Left & Right Filigree Discs */}
+          <mesh
+            material={materials.antiqueGold}
+            position={[-0.80, 0, 0]}
+            rotation={[0, 0, Math.PI / 2]}
+          >
+            <cylinderGeometry args={[0.24, 0.24, 0.015, 32]} />
+          </mesh>
+          <mesh
+            material={materials.antiqueGold}
+            position={[0.80, 0, 0]}
+            rotation={[0, 0, Math.PI / 2]}
+          >
+            <cylinderGeometry args={[0.24, 0.24, 0.015, 32]} />
           </mesh>
         </group>
 
         {/* Front Clasp Assembly */}
         <group name="FrontClaspAssembly" position={[0, 0.44, 0.84]}>
           <mesh material={materials.roseGoldCore} position={[0, 0, 0.02]}>
-            <sphereGeometry args={[0.1, 16, 16]} />
+            <sphereGeometry args={[0.09, 16, 16]} />
           </mesh>
           <mesh ref={claspLeftRef} material={materials.champagneGold} position={[-0.12, 0, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.14, 16]} />
+            <cylinderGeometry args={[0.048, 0.048, 0.14, 16]} />
           </mesh>
           <mesh ref={claspRightRef} material={materials.champagneGold} position={[0.12, 0, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.14, 16]} />
+            <cylinderGeometry args={[0.048, 0.048, 0.14, 16]} />
           </mesh>
         </group>
 
         {/* ================================================================= */}
-        {/* STAGE 4 & 5: HINGED LID, CONSTELLATION STARS & ROYAL CROWN CREST */}
+        {/* STAGE 5 & 6: HINGED LID, GEMSTONES & ROYAL CROWN CREST            */}
         {/* ================================================================= */}
         <group ref={lidHingeGroupRef} name="HingedLidGroup" position={[0, 0.46, -0.78]}>
           <group ref={lidContentGroupRef} position={[0, 0, 0.78]}>
@@ -642,24 +990,17 @@ export const LuxuryGiftBoxRig: React.FC = () => {
               <boxGeometry args={[1.62, 0.06, 1.62]} />
             </mesh>
             {/* Bevelled Gold Frame */}
-            <mesh material={materials.champagneGold} position={[0, 0.05, 0]}>
+            <mesh
+              material={materials.champagneGold}
+              position={[0, 0.05, 0]}
+              onClick={handleOrnamentHighlight}
+            >
               <boxGeometry args={[1.7, 0.03, 1.7]} />
             </mesh>
             {/* Raised Center Ornamental Terrace */}
             <mesh material={materials.wineLacquer} position={[0, 0.075, 0]}>
               <boxGeometry args={[1.25, 0.03, 1.25]} />
             </mesh>
-
-            {/* 8 Constellation Diamond Stars around lid terrace */}
-            {starInlayPositions.map((pos, idx) => (
-              <mesh
-                key={`star-inlay-${idx}`}
-                material={materials.champagneGold}
-                position={pos}
-              >
-                <octahedronGeometry args={[0.04, 0]} />
-              </mesh>
-            ))}
 
             {/* Concentric Gold Filigree Rings */}
             {[0.36, 0.45, 0.54].map((radius, idx) => (
@@ -668,13 +1009,33 @@ export const LuxuryGiftBoxRig: React.FC = () => {
                 material={materials.champagneGold}
                 position={[0, 0.09, 0]}
                 rotation={[-Math.PI / 2, 0, 0]}
+                onClick={handleOrnamentHighlight}
               >
                 <ringGeometry args={[radius, radius + 0.015, 36]} />
               </mesh>
             ))}
 
-            {/* Royal Crown Crest Brooch & Radiant Ruby Gemstone */}
-            <group ref={crownCrestGroupRef} name="RoyalCrownCrestGroup" position={[0, 0.08, 0]}>
+            {/* 8 Constellation Amber & Gold Gemstones around lid terrace */}
+            <group ref={amberGemsGroupRef} name="AmberGemAccentsGroup">
+              {starInlayPositions.map((pos, idx) => (
+                <mesh
+                  key={`star-inlay-${idx}`}
+                  material={idx % 2 === 0 ? materials.amberGem : materials.champagneGold}
+                  position={pos}
+                  onClick={handleCrestClick}
+                >
+                  <octahedronGeometry args={[0.042, 0]} />
+                </mesh>
+              ))}
+            </group>
+
+            {/* Royal Crown Crest Brooch & Radiant Ruby Heart Gemstone */}
+            <group
+              ref={crownCrestGroupRef}
+              name="RoyalCrownCrestGroup"
+              position={[0, 0.08, 0]}
+              onClick={handleCrestClick}
+            >
               {/* Crown Base Rim */}
               <mesh material={materials.champagneGold} position={[0, 0.02, 0]}>
                 <cylinderGeometry args={[0.22, 0.25, 0.04, 24]} />
@@ -706,13 +1067,13 @@ export const LuxuryGiftBoxRig: React.FC = () => {
         </group>
 
         {/* ================================================================= */}
-        {/* STAGE 6: CRIMSON SATIN RIBBON & GRAND BOW */}
+        {/* STAGE 7: CRIMSON SATIN RIBBON & ELABORATE 3D BOW                  */}
         {/* ================================================================= */}
         <group
           ref={ribbonBowGroupRef}
           name="CrimsonSatinRibbonGroup"
           position={[0, 0.54, 0]}
-          onClick={handleTriggerOpen}
+          onClick={handleRibbonInteraction}
         >
           {/* Vertical Ribbon Wrap (Front-to-Back) */}
           <mesh material={materials.crimsonSatin} position={[0, -0.54, 0]}>
@@ -723,48 +1084,64 @@ export const LuxuryGiftBoxRig: React.FC = () => {
             <boxGeometry args={[1.74, 1.12, 0.22]} />
           </mesh>
 
-          {/* Center Bow Knot */}
-          <mesh material={materials.crimsonSatin} position={[0, 0.06, 0]}>
-            <sphereGeometry args={[0.14, 18, 18]} />
-          </mesh>
+          <group ref={bowKnotGroupRef}>
+            {/* Center Bow Knot */}
+            <mesh material={materials.crimsonSatin} position={[0, 0.06, 0]}>
+              <sphereGeometry args={[0.14, 18, 18]} />
+            </mesh>
 
-          {/* Left Satin Bow Loop */}
-          <mesh
-            material={materials.crimsonSatin}
-            position={[-0.28, 0.18, 0]}
-            rotation={[0, 0, 0.42]}
-          >
-            <torusGeometry args={[0.2, 0.065, 16, 36]} />
-          </mesh>
+            {/* Primary Left & Right Satin Bow Loops */}
+            <mesh
+              material={materials.crimsonSatin}
+              position={[-0.28, 0.18, 0]}
+              rotation={[0, 0, 0.42]}
+            >
+              <torusGeometry args={[0.2, 0.065, 16, 36]} />
+            </mesh>
+            <mesh
+              material={materials.crimsonSatin}
+              position={[0.28, 0.18, 0]}
+              rotation={[0, 0, -0.42]}
+            >
+              <torusGeometry args={[0.2, 0.065, 16, 36]} />
+            </mesh>
 
-          {/* Right Satin Bow Loop */}
-          <mesh
-            material={materials.crimsonSatin}
-            position={[0.28, 0.18, 0]}
-            rotation={[0, 0, -0.42]}
-          >
-            <torusGeometry args={[0.2, 0.065, 16, 36]} />
-          </mesh>
+            {/* Secondary Diagonal Satin Bow Loops for Royal Fullness */}
+            <mesh
+              material={materials.crimsonSatin}
+              position={[-0.22, 0.16, 0.14]}
+              rotation={[0.25, 0.45, 0.35]}
+            >
+              <torusGeometry args={[0.16, 0.05, 14, 32]} />
+            </mesh>
+            <mesh
+              material={materials.crimsonSatin}
+              position={[0.22, 0.16, 0.14]}
+              rotation={[0.25, -0.45, -0.35]}
+            >
+              <torusGeometry args={[0.16, 0.05, 14, 32]} />
+            </mesh>
 
-          {/* Flowing Ribbon Tails */}
-          <mesh
-            material={materials.crimsonSatin}
-            position={[-0.32, 0.02, 0.22]}
-            rotation={[0.3, -0.35, 0.55]}
-          >
-            <cylinderGeometry args={[0.06, 0.09, 0.48, 12]} />
-          </mesh>
-          <mesh
-            material={materials.crimsonSatin}
-            position={[0.32, 0.02, 0.22]}
-            rotation={[0.3, 0.35, -0.55]}
-          >
-            <cylinderGeometry args={[0.06, 0.09, 0.48, 12]} />
-          </mesh>
+            {/* Flowing Ribbon Tails */}
+            <mesh
+              material={materials.crimsonSatin}
+              position={[-0.32, 0.02, 0.22]}
+              rotation={[0.3, -0.35, 0.55]}
+            >
+              <cylinderGeometry args={[0.06, 0.09, 0.48, 12]} />
+            </mesh>
+            <mesh
+              material={materials.crimsonSatin}
+              position={[0.32, 0.02, 0.22]}
+              rotation={[0.3, 0.35, -0.55]}
+            >
+              <cylinderGeometry args={[0.06, 0.09, 0.48, 12]} />
+            </mesh>
+          </group>
         </group>
 
         {/* ================================================================= */}
-        {/* INTERIOR CAVITY: VELVET LINING & GOLDEN POINT LIGHT */}
+        {/* INTERIOR CAVITY: VELVET LINING, GOLDEN LIGHT & RISING PETALS      */}
         {/* ================================================================= */}
         <group name="InteriorCavityGroup" position={[0, -0.1, 0]}>
           <pointLight
@@ -783,6 +1160,27 @@ export const LuxuryGiftBoxRig: React.FC = () => {
             <mesh material={materials.roseGoldCore} position={[0, 0.02, 0]}>
               <sphereGeometry args={[0.18, 24, 24]} />
             </mesh>
+          </group>
+
+          {/* Rising Golden Particles & Rose Petals on Box Open */}
+          <group ref={risingPetalsGroupRef} scale={[0.001, 0.001, 0.001]}>
+            {[
+              [-0.28, 0.15, 0.18],
+              [0.32, 0.28, -0.14],
+              [-0.14, 0.42, -0.26],
+              [0.22, 0.52, 0.24],
+              [0.0, 0.64, 0.08],
+              [-0.34, 0.36, -0.08],
+            ].map(([px, py, pz], idx) => (
+              <mesh
+                key={`rising-petal-${idx}`}
+                material={idx % 2 === 0 ? materials.rubyGem : materials.champagneGold}
+                position={[px, py, pz]}
+                rotation={[idx * 0.6, idx * 0.9, idx * 0.4]}
+              >
+                <octahedronGeometry args={[0.032, 0]} />
+              </mesh>
+            ))}
           </group>
         </group>
       </group>

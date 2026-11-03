@@ -1,5 +1,42 @@
 # Product Changelog
 
+## 2026-11-03 — The Royal Gift & The Hidden Postscript Climax (`FinalGiftReveal.tsx` & `LuxuryGiftBoxRig.tsx`)
+
+- **Files Changed:**
+  - `src/acts/FinalGiftReveal.tsx`
+  - `src/engine/webgl/objects/LuxuryGiftBoxRig.tsx`
+  - `src/types/scene.types.ts`
+  - `src/store/transientMotionState.ts`
+  - `src/components/hud/TopBrandBar.tsx`
+  - `src/components/hud/ChapterRail.tsx`
+  - `src/components/hud/ComfortControls.tsx`
+  - `tests/e2e/finalGiftVerification.spec.ts`
+
+- **What Changed:**
+  - **8-Stage Automatic 3D Royal Gift Box Assembly (`LuxuryGiftBoxRig.tsx`):**
+    - Upgraded 3D construction timeline (24s normal, 4.5s reduced motion) across 8 coordinated stages on top of the existing golden pedestal in `final-gift-reveal.png`: (1) Pedestal Alignment & Stardust, (2) Foundation Baseplate & Reinforced Corners, (3) Four Royal Burgundy Walls arriving from 4 directions, (4) Gold Columns, Upper Rails & Engraved Filigree Medallions, (5) Multi-layered Hinged Lid, (6) Royal Crown Crest, 3D Faceted Ruby Heart & Amber Gemstones, (7) Crimson Satin Ribbon & Double-Loop 3D Bow, (8) Final Finishing.
+    - Added optional interactive discovery touchpoints on the 3D box and accessible UI pills: tapping the Ruby Heart Crest triggers a warm ruby pulse; touching the Satin Ribbon triggers a physical bounce; inspecting the Gold Filigree highlights its engravings.
+    - Added a concealed 3D Secret Compartment Drawer (`secretDrawerGroupRef`) and 3D folded ivory-and-burgundy note (`secretNote3DRef`) in the lower pedestal-facing edge of the box, illuminated by a pulsing golden glimmer point light (`secretGlimmerLightRef`).
+  - **10-State Emotional Narrative Arc (`FinalGiftReveal.tsx`):**
+    - Implemented structured state machine (`ASSEMBLING` -> `ASSEMBLY_COMPLETE` -> `READY_TO_OPEN` -> `UNTYING` -> `OPENING` -> `GIFT_REVEALED` -> `QUIET_MOMENT` -> `POSTSCRIPT_REVEAL` -> `POSTSCRIPT_READY` -> `COMPLETE`).
+    - Sequential construction copy: `"Something special is taking shape..."`, `"A little piece of everything, just for you."`, `"Because ordinary was never going to be enough."`, `"Now comes the part I've been waiting for..."`, `"Your surprise is ready, princess. ♥"`.
+    - Exploration instruction (`"Take a closer look. I put a little extra love into the details. ♥"`) and main opening CTA (`"I CAN'T WAIT — OPEN IT!"`).
+    - Preserved `CONFIGURED_ACTUAL_GIFT`, `SmartImage`, `HeirloomMediaPlaceholder`, and `proceduralAudio.playGiftBoxOpen()`, plus distinct `Replay Assembly` and `Replay Gift Reveal` controls.
+    - **The Quiet Moment (Apparent Finale):** Interface elements gently fade away while the opened 3D box rests on the pedestal, revealing understated copy (`"Thank you for making ordinary days feel a little more beautiful."` / `"And for being someone I'd choose, in every little moment. ♥"`). Suppressed project title and navigation menus during `FINAL_GIFT` so the apparent ending feels genuine and intimate.
+    - **The Hidden Postscript (Plot Twist):** A tiny golden glimmer appears beneath the box, the secret compartment slides open, and a warm ivory-and-burgundy folded note emerges and unfolds with `"P.S. — ONE LAST THING"`, `"You thought that was the whole picture?"`, `"Oh, we're not done yet. ❤️"`, `"There's still a little more waiting for you..."`, and `"THERE'S A LITTLE MORE... →"`, which turns the note over to reveal a glowing golden heart emblem and outward golden particles before transitioning to `AFTER_CREDITS`.
+
+- **Why:**
+  - Transform the Final Gift Reveal into a two-layer emotional climax with automatic 3D craftsmanship and an unexpected hidden postscript twist.
+
+- **Verification:**
+  - Verified with `npm run build` (`tsc --noEmit && vite build`) and Playwright E2E test suite (`tests/e2e/finalGiftVerification.spec.ts`).
+
+- **Deployment Status:**
+  - Local build and root static bundle updated. Not deployed or pushed automatically per rules.
+
+- **Remaining Issues:**
+  - None.
+
 ## 2026-11-03 — GitHub Pages MIME-Type & Favicon Fix + The Little Invitation Prelude
 
 - **Files Changed:**
