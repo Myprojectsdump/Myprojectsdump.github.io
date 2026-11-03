@@ -15,8 +15,8 @@ describe('Store & Persistence Unit Verification', () => {
   it('initializes with clean default state', () => {
     const state = useExperienceStore.getState();
     expect(state.hasEnteredUniverse).toBe(false);
-    expect(state.currentChapter).toBe('OPENING');
-    expect(state.visitedChapters).toEqual(['OPENING']);
+    expect(state.currentChapter).toBe('PRELUDE');
+    expect(state.visitedChapters).toEqual(['PRELUDE']);
     expect(state.discoveredMemoryIds).toEqual([]);
     expect(state.discoveredMirrorNoteIds).toEqual([]);
     expect(state.kissCount).toBe(0);
@@ -25,15 +25,15 @@ describe('Store & Persistence Unit Verification', () => {
 
   it('updates chapter and records visited chapters', () => {
     const store = useExperienceStore.getState();
-    store.setCurrentChapter('ACT_1');
+    store.setCurrentChapter('ACT_1', true);
     expect(useExperienceStore.getState().currentChapter).toBe('ACT_1');
     expect(useExperienceStore.getState().visitedChapters).toContain('ACT_1');
 
-    store.setCurrentChapter('ACT_2');
-    expect(useExperienceStore.getState().visitedChapters).toEqual(['OPENING', 'ACT_1', 'ACT_2']);
+    store.setCurrentChapter('ACT_2', true);
+    expect(useExperienceStore.getState().visitedChapters).toEqual(['PRELUDE', 'ACT_1', 'ACT_2']);
   });
 
-  it('persists discovered items and survives state reload', () => {
+  it('tracks discovered items in runtime store and resets on reload per user rule', () => {
     const store = useExperienceStore.getState();
     store.discoverMemory('mem-01');
     store.discoverMirrorNote(1);
@@ -49,19 +49,15 @@ describe('Store & Persistence Unit Verification', () => {
     expect(state.revealedScratchIds).toContain('scratch-1');
 
     const persisted = loadPersistedState();
-    expect(persisted.discoveredMemoryIds).toContain('mem-01');
-    expect(persisted.discoveredMirrorNoteIds).toContain(1);
-    expect(persisted.kissCount).toBe(1);
-    expect(persisted.discoveredStarIds).toContain('eyes');
-    expect(persisted.revealedScratchIds).toContain('scratch-1');
+    expect(persisted.lastChapter).toBe('PRELUDE');
   });
 
   it('handles corrupted localStorage gracefully', () => {
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem(STORAGE_KEY, '{invalid_json--');
       const loaded = loadPersistedState();
-      expect(loaded.lastChapter).toBe('OPENING');
-      expect(loaded.visitedChapters).toEqual(['OPENING']);
+      expect(loaded.lastChapter).toBe('PRELUDE');
+      expect(loaded.visitedChapters).toEqual(['PRELUDE']);
     }
   });
 

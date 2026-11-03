@@ -53,7 +53,9 @@ function githubPagesRootSyncPlugin(): Plugin {
 
   return {
     name: 'github-pages-root-sync',
-    config() {
+    config(_, { command }) {
+      if (process.env.VITEST) return;
+      if (command !== 'build' && command !== 'serve') return;
       // Always ensure Vite sees the source entry point before dev or build starts
       if (fs.existsSync(indexHtmlPath)) {
         const current = fs.readFileSync(indexHtmlPath, 'utf-8');
