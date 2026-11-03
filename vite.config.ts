@@ -53,10 +53,28 @@ function githubPagesRootSyncPlugin(): Plugin {
 
   return {
     name: 'github-pages-root-sync',
+    configureServer(server) {
+      // During dev server (npm run dev), always serve the source HTML with /src/main.tsx
+      // so Vite never parses compiled production assets
+      server.middlewares.use(async (req, res, next) => {
+        const url = req.url?.split('?')[0];
+        if (url === '/' || url === '/index.html') {
+          try {
+            const transformed = await server.transformIndexHtml(req.url || '/', SOURCE_INDEX_HTML);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.end(transformed);
+            return;
+          } catch (err) {
+            return next(err);
+          }
+        }
+        next();
+      });
+    },
     config(_, { command }) {
       if (process.env.VITEST) return;
-      if (command !== 'build' && command !== 'serve') return;
-      // Always ensure Vite sees the source entry point before dev or build starts
+      if (command !== 'build') return;
+      // Always ensure Vite sees the source entry point before build starts
       if (fs.existsSync(indexHtmlPath)) {
         const current = fs.readFileSync(indexHtmlPath, 'utf-8');
         if (!current.includes('/src/main.tsx')) {
