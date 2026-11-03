@@ -1,5 +1,49 @@
 # Product Changelog
 
+## 2026-11-03 — GitHub Pages MIME-Type & Favicon Fix + The Little Invitation Prelude
+
+- **Files Changed:**
+  - `vite.config.ts`
+  - `index.html`
+  - `public/favicon.svg`
+  - `public/favicon.ico`
+  - `public/.nojekyll`
+  - `.github/workflows/deploy.yml`
+  - `src/acts/PreludeInvitation.tsx`
+  - `src/config/preludeContent.ts`
+  - `src/types/scene.types.ts`
+  - `src/config/chapters.ts`
+  - `src/store/persistence.ts`
+  - `src/store/useExperienceStore.ts`
+  - `src/store/transientMotionState.ts`
+  - `src/engine/webgl/CameraRig.tsx`
+  - `src/acts/OpeningPortal.tsx`
+  - `src/App.tsx`
+  - `tests/e2e/preludeInvitationVerification.spec.ts`
+
+- **What Changed:**
+  - **GitHub Pages MIME Type & Asset Resolution Fix:**
+    - Resolved `Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "application/octet-stream"` when deployed on `https://myprojectsdump.github.io/`. The error occurred because GitHub Pages was serving the uncompiled source `index.html` (`<script type="module" src="/src/main.tsx"></script>`), causing `.tsx` to be served as `application/octet-stream`.
+    - Configured `base: './'` in `vite.config.ts` and added `githubPagesRootSyncPlugin()` so that `vite` dev/build automatically compiles from `/src/main.tsx`, and upon `closeBundle` syncs the compiled production `index.html`, `./assets/`, `./favicon.ico`, `./favicon.svg`, `./.nojekyll`, and `./media/` to the repository root for direct GitHub Pages branch serving.
+    - Added `.github/workflows/deploy.yml` for automated GitHub Actions Pages deployments.
+    - Fixed `vite.config.ts` syntax error (duplicate `export default defineConfig({`).
+  - **Favicon 404 Fix:**
+    - Created `public/favicon.svg` (golden heart emblem) and binary `public/favicon.ico`, linked in `index.html` and synced to root, eliminating `GET /favicon.ico 404 (Not Found)`.
+  - **Prelude Invitation (`PreludeInvitation.tsx`):**
+    - Implemented the warm afternoon prelude invitation (`PRELUDE` chapter) before `OpeningPortal`, complete with ivory envelope, burgundy satin ribbon, sculpted golden heart wax seal with `playWaxSealCrack()`, unfolding parchment letter, and stardust transition to `OPENING`.
+
+- **Why:**
+  - Fix GitHub Pages module script MIME error and missing favicon 404, and complete the prelude invitation experience.
+
+- **Verification:**
+  - Production build (`npm run build`: `tsc --noEmit && vite build`) verified cleanly with zero TypeScript or bundler errors, generating compiled JS/CSS assets and root static sync.
+
+- **Deployment Status:**
+  - Local build and root static bundle prepared for GitHub Pages (`Myprojectsdump.github.io`). Not pushed automatically per engineering rules.
+
+- **Remaining Issues:**
+  - None.
+
 ## 2026-11-03 — Cinematic Title Masterpiece: Full Visual Parity with Reference & SVG Mask Handwriting Architecture
 
 - **Files Changed:**

@@ -12,7 +12,8 @@
    - Transient motion store (`transientMotionState.ts`) for 60fps frame loop variables without triggering React re-renders.
 
 3. **Narrative Spine & Acts:**
-   - `OpeningPortal`: Initial cosmos convergence ritual.
+   - `PreludeInvitation`: Initial warm sunlit afternoon desk invitation (`PRELUDE` chapter). Features ivory envelope wrapped in burgundy satin ribbon, sculpted golden heart wax seal (`playWaxSealCrack`), unfolding deckled parchment love note, and stardust dissolution into `OPENING`.
+   - `OpeningPortal`: Initial cosmos convergence ritual (`OPENING` chapter).
    - `Act1TwoCountriesOneSky`: Two countries, one sky romantic sunrise experience. Static golden sunrise background plate with 3D faceted amber diamond heart, 7 champagne gold rings, glass bubble, golden light connection arc between ME (India Gate) and YOU, MY UCI (Pagoda), voice player pill, and navigation to Act II.
    - `Act2LittleThingsIKeep`: Warm keepsake gallery with 6 Polaroid cards, washi tape styling, interactive heirloom modal, voice player pill, and navigation to Act III.
    - `Act3SecretMirror`: Grand antique baroque gold-carved mirror with 100% solid steamy condensation, finger-drawn condensation heart outline, 4 wiping tools (Soft Towel handkerchief, Silk Cloth, Feather, Finger), glowing handwritten personal notes with safe-quadrant margins, lipstick kiss mark, mystery-locked checklist slots that only populate upon mirror exploration, and navigation to Act IV (`STEP THROUGH THE MIRROR →`).
