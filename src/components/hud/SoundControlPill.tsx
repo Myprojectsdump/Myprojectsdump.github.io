@@ -1,135 +1,110 @@
 // src/components/hud/SoundControlPill.tsx
 
-import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Sliders, MessageSquare } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Volume2, VolumeX, Music } from 'lucide-react';
 import { useExperienceStore } from '../../store/useExperienceStore';
 import { audioEngine } from '../../engine/audio/AudioEngine';
+import { proceduralAudio } from '../../engine/audio/ProceduralAudio';
+import { musicController, MusicControllerState } from '../../utils/musicController';
 
 export const SoundControlPill: React.FC = () => {
   const isMuted = useExperienceStore((state) => state.isMuted);
-  const musicVolume = useExperienceStore((state) => state.musicVolume);
-  const sfxVolume = useExperienceStore((state) => state.sfxVolume);
-  const captionsEnabled = useExperienceStore((state) => state.captionsEnabled);
+  const setMuted = useExperienceStore((state) => state.setMuted);
+  const currentChapter = useExperienceStore((state) => state.currentChapter);
+  const vinylSide = useExperienceStore((state) => state.vinylSide);
+  const act4SubStage = useExperienceStore((state) => state.act4SubStage);
 
-  const toggleMute = useExperienceStore((state) => state.toggleMute);
-  const setMusicVolume = useExperienceStore((state) => state.setMusicVolume);
-  const setSfxVolume = useExperienceStore((state) => state.setSfxVolume);
-  const toggleCaptions = useExperienceStore((state) => state.toggleCaptions);
+  const [musicState, setMusicState] = useState<MusicControllerState>(() =>
+    musicController.getState()
+  );
 
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Global M keyboard shortcut for mute (when not typing in an input/textarea)
+  // Subscribe to musicController state updates
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 'm' && !['input', 'textarea'].includes((e.target as HTMLElement).tagName.toLowerCase())) {
-        toggleMute();
-        audioEngine.syncGainsFromStore();
-      }
+    return musicController.subscribe(setMusicState);
+  }, []);
+
+  // Automatically crossfade soundtrack when chapter, vinylSide, or act4SubStage changes
+  useEffect(() => {
+    musicController.syncChapterAndMode(currentChapter, vinylSide, act4SubStage);
+  }, [currentChapter, vinylSide, act4SubStage]);
+
+  // Global first-gesture audio unlock listener
+  useEffect(() => {
+    const handleFirstGesture = () => {
+      audioEngine.unlockAudioContext();
+      musicController.unlockFromUserGesture(useExperienceStore.getState().isMuted);
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleMute]);
 
-  const handleMuteClick = () => {
-    toggleMute();
+    window.addEventListener('pointerdown', handleFirstGesture, { once: true });
+    window.addEventListener('keydown', handleFirstGesture, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', handleFirstGesture);
+      window.removeEventListener('keydown', handleFirstGesture);
+    };
+  }, []);
+
+  const handleToggleGlobalSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    audioEngine.unlockAudioContext();
+
+    const nextMuted = !isMuted;
+    setMuted(nextMuted);
+
+    if (nextMuted) {
+      proceduralAudio.stopAllActiveLoops();
+    }
+
+    musicController.setMuted(nextMuted);
     audioEngine.syncGainsFromStore();
+
+    if (!nextMuted) {
+      musicController.play();
+    }
   };
 
-  const handleMusicChange = (val: number) => {
-    setMusicVolume(val);
-    audioEngine.syncGainsFromStore();
-  };
-
-  const handleSfxChange = (val: number) => {
-    setSfxVolume(val);
-    audioEngine.syncGainsFromStore();
-  };
+  const track = musicState.currentTrack;
 
   return (
-    <div className="fixed top-3 right-6 z-40 select-none">
-      <div className="flex items-center gap-2 p-1.5 rounded-full glass-panel border border-champagne-gold/30 shadow-glow">
-        <button
-          onClick={handleMuteClick}
-          className="p-1.5 rounded-full text-champagne-gold hover:bg-champagne-gold/20 transition-colors"
-          title={isMuted ? 'Unmute (M)' : 'Mute (M)'}
-          aria-label={isMuted ? 'Unmute Sound' : 'Mute Sound'}
-        >
-          {isMuted ? <VolumeX className="w-4 h-4 text-crimson-lust" /> : <Volume2 className="w-4 h-4" />}
-        </button>
-
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className={`p-1.5 rounded-full transition-colors ${
-            isOpen ? 'bg-champagne-gold/25 text-champagne-gold' : 'text-champagne-gold/70 hover:text-champagne-gold hover:bg-champagne-gold/15'
-          }`}
-          title="Sound & Audio Settings"
-          aria-label="Sound Settings"
-          aria-expanded={isOpen}
-        >
-          <Sliders className="w-3.5 h-3.5" />
-        </button>
+    <div
+      role="region"
+      aria-label="Global Sound Control"
+      className={`fixed z-40 pointer-events-auto flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-card border border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300 shadow-lg ${
+        currentChapter === 'PRELUDE' ? 'top-3.5 right-36 sm:right-40' : 'top-3.5 right-4 sm:right-6'
+      }`}
+    >
+      {/* Current Track & Artist Info (Non-button read-only display) */}
+      <div className="hidden lg:flex flex-col text-left max-w-[155px] leading-tight select-none pr-1 border-r border-champagne-gold/20">
+        <div className="flex items-center gap-1 text-[8px] font-mono uppercase tracking-[0.18em] text-champagne-gold/80 truncate">
+          <Music className="w-2.5 h-2.5 shrink-0" />
+          <span className="truncate">{track.actNumber}</span>
+        </div>
+        <span className="text-[10px] font-serif italic text-parchment-cream truncate">
+          {track.title} · <span className="text-parchment-warm/75">{track.artist}</span>
+        </span>
       </div>
 
-      {/* Expanded Audio Mixer Popover */}
-      {isOpen && (
-        <div className="absolute right-0 top-12 w-64 p-4 rounded-xl glass-panel-dense border border-champagne-gold/25 shadow-glow flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="text-xs font-mono tracking-widest text-champagne-gold uppercase border-b border-champagne-gold/20 pb-2">
-            Audio Mixer
-          </div>
-
-          {/* Music Volume */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between text-[11px] font-sans text-parchment-warm/80">
-              <span>Background Music</span>
-              <span className="font-mono text-champagne-gold">{Math.round(musicVolume * 100)}%</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={musicVolume}
-              onChange={(e) => handleMusicChange(parseFloat(e.target.value))}
-              className="accent-champagne-gold w-full h-1 bg-obsidian-void rounded cursor-pointer"
-            />
-          </div>
-
-          {/* SFX Volume */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between text-[11px] font-sans text-parchment-warm/80">
-              <span>Interactions & Sound Effects</span>
-              <span className="font-mono text-champagne-gold">{Math.round(sfxVolume * 100)}%</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={sfxVolume}
-              onChange={(e) => handleSfxChange(parseFloat(e.target.value))}
-              className="accent-champagne-gold w-full h-1 bg-obsidian-void rounded cursor-pointer"
-            />
-          </div>
-
-          {/* Captions Toggle */}
-          <div className="flex items-center justify-between pt-2 border-t border-champagne-gold/15 text-xs text-parchment-warm/80">
-            <span className="flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5 text-champagne-gold/70" />
-              Voice Captions
-            </span>
-            <button
-              onClick={toggleCaptions}
-              className={`px-2.5 py-0.5 rounded text-[10px] font-mono tracking-wider transition-colors ${
-                captionsEnabled
-                  ? 'bg-champagne-gold text-obsidian-void font-bold'
-                  : 'bg-obsidian-void/60 text-parchment-warm/50 border border-champagne-gold/20'
-              }`}
-            >
-              {captionsEnabled ? 'ON' : 'OFF'}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Single Global Master Sound Control Button: SOUND ON / SOUND OFF */}
+      <button
+        type="button"
+        data-testid="global-sound-toggle"
+        onClick={handleToggleGlobalSound}
+        aria-label={isMuted ? 'SOUND OFF — Click to turn sound on' : 'SOUND ON — Click to turn sound off'}
+        aria-pressed={!isMuted}
+        className="flex items-center gap-1.5 px-1 py-0.5 rounded-full text-[11px] font-mono tracking-wider text-parchment-cream cursor-pointer"
+      >
+        {isMuted ? (
+          <>
+            <VolumeX className="w-3.5 h-3.5 text-rose-blush shrink-0" />
+            <span className="text-parchment-warm/80 font-semibold">SOUND OFF</span>
+          </>
+        ) : (
+          <>
+            <Volume2 className="w-3.5 h-3.5 text-champagne-gold animate-pulse shrink-0" />
+            <span className="text-champagne-gold font-semibold">SOUND ON</span>
+          </>
+        )}
+      </button>
     </div>
   );
 };

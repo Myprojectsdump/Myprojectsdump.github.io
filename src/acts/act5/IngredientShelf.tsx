@@ -59,7 +59,7 @@ export const IngredientShelf: React.FC<IngredientShelfProps> = ({
               {/* Text Information */}
               <div className="min-w-0 flex-1">
                 <span className="text-[9px] sm:text-[10px] font-mono tracking-wider text-[#D9AE50]/80 uppercase block">
-                  {isPoured ? 'ADDED TO MIX ✓' : `VIAL #0${ing.slot}`}
+                  {isPoured ? 'ADDED TO MIX ✓' : `VIAL #0${ing.slot ?? i + 1}`}
                 </span>
                 <span className="text-xs sm:text-[13px] font-serif font-medium text-[#FFFDF5] leading-tight block truncate">
                   {ing.percentageLabel} {ing.shortName}

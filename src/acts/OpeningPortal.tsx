@@ -3,19 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Headphones,
-  Volume2,
-  VolumeX,
   ArrowRight,
   Bookmark,
   RotateCcw,
   FastForward,
-  ChevronDown,
 } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import { STORY_DATA } from '../config/storyContent';
 import { audioEngine } from '../engine/audio/AudioEngine';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
+import { musicController } from '../utils/musicController';
 import {
   setOpeningStage,
   setOpeningAssemblyProgress,
@@ -24,7 +21,8 @@ import {
 
 export const OpeningPortal: React.FC = () => {
   const [stage, setStage] = useState<number>(1);
-  const [soundPref, setSoundPref] = useState<boolean>(true); // true = sound on
+  const isMuted = useExperienceStore((state) => state.isMuted);
+  const soundPref = !isMuted;
 
   const enterUniverse = useExperienceStore((state) => state.enterUniverse);
   const setCurrentChapter = useExperienceStore((state) => state.setCurrentChapter);
@@ -66,7 +64,7 @@ export const OpeningPortal: React.FC = () => {
     addTimer(() => {
       setStage(2);
       setOpeningStage(2);
-      if (soundPref) {
+      if (!useExperienceStore.getState().isMuted) {
         proceduralAudio.playStarBridgeChime();
       }
     }, 2400);
@@ -107,7 +105,7 @@ export const OpeningPortal: React.FC = () => {
           if (heartProgress >= 1) clearInterval(heartInterval);
         }, 40);
 
-        if (soundPref) {
+        if (!useExperienceStore.getState().isMuted) {
           proceduralAudio.playCosmicBloomChord();
         }
       }, 1200);
@@ -155,20 +153,6 @@ export const OpeningPortal: React.FC = () => {
     setOpeningAssemblyProgress(1, 1, 1, [1, 1, 1, 1, 1, 1, 1]);
   };
 
-  const advanceNextStep = () => {
-    if (stage < 8) {
-      const next = stage + 1;
-      setStage(next);
-      setOpeningStage(next);
-      if (next >= 5) {
-        transientMotionState.openingParticlesConvergence = 1;
-        transientMotionState.openingHeartScale = 1;
-        transientMotionState.openingHeartGlow = 1;
-        transientMotionState.openingRingProgress = [1, 1, 1, 1, 1, 1, 1];
-      }
-    }
-  };
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const probes = ((window as any).__UCI_TEST_PROBES__ = (window as any).__UCI_TEST_PROBES__ || {});
@@ -191,23 +175,15 @@ export const OpeningPortal: React.FC = () => {
 
   const handleEnterUniverse = (target: string = 'ACT_1') => {
     enterUniverse(!soundPref);
+    musicController.unlockFromUserGesture(!soundPref);
     if (soundPref) {
       audioEngine.unlockAudioContext();
-      proceduralAudio.playCosmicBloomChord();
+      proceduralAudio.playOpeningSignature();
     }
     if (target === 'ACT_1') {
       setCurrentChapter('ACT_1');
     } else {
       setCurrentChapter(target as any);
-    }
-  };
-
-  const toggleSound = () => {
-    const next = !soundPref;
-    setSoundPref(next);
-    if (next) {
-      audioEngine.unlockAudioContext();
-      proceduralAudio.playStarBridgeChime();
     }
   };
 
@@ -307,7 +283,7 @@ export const OpeningPortal: React.FC = () => {
         </svg>
       )}
 
-      {/* ─── LAYER 3: TOP GLOBAL BRANDING & AUDIO STATUS ─── */}
+      {/* ─── LAYER 3: TOP GLOBAL BRANDING & INTRO CONTROLS ─── */}
       <header className="relative z-30 w-full flex items-center justify-between px-8 py-6 pointer-events-auto">
         <div className="flex items-center gap-2.5">
           <span className="text-sm">🪐</span>
@@ -316,24 +292,12 @@ export const OpeningPortal: React.FC = () => {
           </span>
         </div>
 
-        {/* Top Controls: Sound, Fullscreen & Skip Intro */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleSound}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full glass-panel border border-champagne-gold/30 text-[11px] font-mono text-champagne-gold hover:bg-champagne-gold/15 transition-colors"
-            title="Toggle Sound"
-          >
-            <Headphones className="w-3.5 h-3.5 text-champagne-gold" />
-            {soundPref ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-parchment-warm/50" />}
-            <span className="hidden sm:inline text-[10px]">
-              {soundPref ? 'Audio On' : 'Muted'}
-            </span>
-          </button>
-
+        {/* Top Controls: Skip Intro / Replay Intro (positioned cleanly alongside SoundControlPill) */}
+        <div className="flex items-center gap-3 pr-28 sm:pr-44 lg:pr-72">
           {stage < 8 && (
             <button
               onClick={skipToFinalStage}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-champagne-gold/10 hover:bg-champagne-gold/20 border border-champagne-gold/40 text-[10px] font-mono tracking-widest uppercase text-champagne-gold transition-all duration-300"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-champagne-gold/10 hover:bg-champagne-gold/20 border border-champagne-gold/40 text-[10px] font-mono tracking-widest uppercase text-champagne-gold transition-all duration-300 cursor-pointer"
             >
               <span>Skip Intro</span>
               <FastForward className="w-3 h-3" />
@@ -343,7 +307,7 @@ export const OpeningPortal: React.FC = () => {
           {stage === 8 && (
             <button
               onClick={runSequence}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel border border-champagne-gold/25 text-[10px] font-mono text-parchment-warm/75 hover:text-champagne-gold hover:border-champagne-gold transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel border border-champagne-gold/25 text-[10px] font-mono text-parchment-warm/75 hover:text-champagne-gold hover:border-champagne-gold transition-colors cursor-pointer"
               title="Replay Introduction Animation"
             >
               <RotateCcw className="w-3 h-3" />
@@ -354,7 +318,7 @@ export const OpeningPortal: React.FC = () => {
       </header>
 
       {/* ─── LAYER 4: MAIN ASYMMETRIC CINEMATIC CONTENT GRID ─── */}
-      <main className="relative z-20 w-full min-h-[calc(100vh-140px)] flex flex-col justify-between px-6 md:px-12 py-4 pointer-events-none">
+      <main className="relative z-20 w-full min-h-[calc(100vh-140px)] flex flex-col justify-center px-6 md:px-12 py-4 pointer-events-none">
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-start">
           {/* LEFT COLUMN: PRELUDE NARRATIVE LINES (Stages 4+) */}
           <div className="lg:col-span-4 lg:col-start-1 flex flex-col items-start justify-start pt-12 lg:pt-24 pl-4 lg:pl-10 pointer-events-auto">
@@ -372,20 +336,9 @@ export const OpeningPortal: React.FC = () => {
                   across time zones, miles and days apart...
                 </p>
                 <p className="font-serif italic text-lg sm:text-xl lg:text-2xl font-light text-champagne-gold leading-relaxed drop-shadow-md">
-                  there's still one thing that remains constant —
+                  there&apos;s still one thing that remains constant —
                 </p>
               </motion.div>
-            )}
-
-            {/* Fast step continue affordance if active in stages 4-7 */}
-            {stage >= 4 && stage < 8 && (
-              <button
-                onClick={advanceNextStep}
-                className="mt-6 flex items-center gap-1.5 text-[11px] font-mono tracking-wider text-champagne-gold/60 hover:text-champagne-gold uppercase transition-colors"
-              >
-                <span>Continue</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
             )}
           </div>
 
@@ -462,50 +415,15 @@ export const OpeningPortal: React.FC = () => {
                 {hasVisitedBefore && (
                   <button
                     onClick={() => handleEnterUniverse(lastVisitedChapter)}
-                    className="flex items-center gap-2 px-5 py-2 rounded-full glass-panel border border-champagne-gold/30 text-xs font-mono text-parchment-warm/80 hover:text-champagne-gold hover:border-champagne-gold transition-all duration-200"
+                    className="flex items-center gap-2 px-5 py-2 rounded-full glass-panel border border-champagne-gold/30 text-xs font-mono text-parchment-warm/80 hover:text-champagne-gold hover:border-champagne-gold transition-all duration-200 cursor-pointer"
                   >
                     <Bookmark className="w-3.5 h-3.5 text-champagne-gold" />
                     <span>Resume at {lastVisitedChapter.replace('_', ' ')}</span>
                   </button>
                 )}
-
-                {/* Sound Toggle Status Pill */}
-                <div className="flex items-center gap-2 pt-1">
-                  <button
-                    onClick={toggleSound}
-                    className="flex items-center gap-2.5 text-[11px] font-mono text-parchment-warm/70 hover:text-champagne-gold transition-colors"
-                  >
-                    <Headphones className="w-3.5 h-3.5 text-champagne-gold" />
-                    <span>Sound On (Recommended with Headphones 🎧)</span>
-                    <span
-                      className={`inline-block w-8 h-4 rounded-full p-0.5 transition-colors ${
-                        soundPref ? 'bg-champagne-gold' : 'bg-parchment-warm/20'
-                      }`}
-                    >
-                      <span
-                        className={`block w-3 h-3 rounded-full bg-obsidian-void transition-transform ${
-                          soundPref ? 'translate-x-4' : 'translate-x-0'
-                        }`}
-                      />
-                    </span>
-                  </button>
-                </div>
               </motion.div>
             )}
           </div>
-        </div>
-
-        {/* ─── LAYER 5: BOTTOM SCROLL EXPLORE AFFORDANCE ─── */}
-        <div className="relative z-20 flex flex-col items-center justify-center pb-2 pointer-events-auto">
-          <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-parchment-warm/50 mb-1">
-            SCROLL TO EXPLORE
-          </span>
-          <motion.div
-            animate={{ y: [0, 5, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <ChevronDown className="w-4 h-4 text-champagne-gold/60" />
-          </motion.div>
         </div>
       </main>
     </div>

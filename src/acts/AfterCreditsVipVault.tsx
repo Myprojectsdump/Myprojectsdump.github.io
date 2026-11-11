@@ -86,7 +86,7 @@ export const AfterCreditsVipVault: React.FC = () => {
 
         {/* Supporting Copy */}
         <p className="text-xs sm:text-sm font-serif italic text-[#F8E6A0]/90 max-w-xl leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-          Redeemable remotely tonight across the distance, or at our next reunion ♥
+          Redeemable remotely tonight or any night across our 3,000 miles ♥
         </p>
 
         {/* Small Wax Seal Accent Divider */}

@@ -112,10 +112,12 @@ function githubPagesRootSyncPlugin(): Plugin {
         }
       }
 
-      const distMedia = path.resolve(distDir, 'media');
-      const rootMedia = path.resolve(rootDir, 'media');
-      if (fs.existsSync(distMedia)) {
-        fs.cpSync(distMedia, rootMedia, { recursive: true, force: true });
+      for (const dirName of ['media', 'audio', 'photos']) {
+        const distFolder = path.resolve(distDir, dirName);
+        const rootFolder = path.resolve(rootDir, dirName);
+        if (fs.existsSync(distFolder)) {
+          fs.cpSync(distFolder, rootFolder, { recursive: true, force: true });
+        }
       }
     },
   };

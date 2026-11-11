@@ -1,15 +1,19 @@
 // src/acts/act4/VinylTurntable.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Disc } from 'lucide-react';
 
 interface VinylTurntableProps {
   vinylSide: 'daylight' | 'afterHours';
   isPlaying: boolean;
   kissCount: number;
-  onToggleSide: () => void;
+  photoPath?: string;
+  daylightPhotoPath?: string;
+  afterHoursPhotoPath?: string;
+  onToggleSide: (side?: 'daylight' | 'afterHours') => void;
   onTogglePlay: () => void;
   onSendKiss: () => void;
+  onScratch?: (deltaSeconds: number) => void;
 }
 
 interface FloatingHeart {
@@ -22,17 +26,31 @@ export const VinylTurntable: React.FC<VinylTurntableProps> = ({
   vinylSide,
   isPlaying,
   kissCount,
+  photoPath,
+  daylightPhotoPath = '/photos/uci-12.jpg',
+  afterHoursPhotoPath = '/photos/uci-13.jpg',
   onToggleSide,
   onTogglePlay,
   onSendKiss,
+  onScratch,
 }) => {
   const [floatingHearts, setFloatingHearts] = useState<FloatingHeart[]>([]);
+  const [photoError, setPhotoError] = useState(false);
+  const [scratchAngleOffset, setScratchAngleOffset] = useState(0);
+  const [isScratchingDisc, setIsScratchingDisc] = useState(false);
+
+  const lastPointerAngleRef = useRef<number | null>(null);
   const isDaylight = vinylSide === 'daylight';
+
+  const activePhoto = photoPath || (isDaylight ? daylightPhotoPath : afterHoursPhotoPath);
+
+  useEffect(() => {
+    setPhotoError(false);
+  }, [activePhoto, vinylSide]);
 
   const handleKissClick = () => {
     onSendKiss();
 
-    // Spawn floating heart particles
     const newHeart: FloatingHeart = {
       id: Date.now() + Math.random(),
       x: (Math.random() - 0.5) * 40,
@@ -45,25 +63,77 @@ export const VinylTurntable: React.FC<VinylTurntableProps> = ({
     }, 1200);
   };
 
+  const computePointerAngle = (clientX: number, clientY: number, el: HTMLDivElement): number => {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+  };
+
+  const handleDiscPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    lastPointerAngleRef.current = computePointerAngle(e.clientX, e.clientY, e.currentTarget);
+    setIsScratchingDisc(true);
+  };
+
+  const handleDiscPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isScratchingDisc || lastPointerAngleRef.current === null) {
+      return;
+    }
+
+    const currentAngle = computePointerAngle(e.clientX, e.clientY, e.currentTarget);
+    let deltaDeg = currentAngle - lastPointerAngleRef.current;
+    if (deltaDeg > 180) deltaDeg -= 360;
+    if (deltaDeg < -180) deltaDeg += 360;
+
+    lastPointerAngleRef.current = currentAngle;
+    setScratchAngleOffset((prev) => prev + deltaDeg);
+
+    if (Math.abs(deltaDeg) > 1.2 && onScratch) {
+      onScratch(deltaDeg * 0.015);
+    }
+  };
+
+  const handleDiscPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isScratchingDisc) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignore release errors
+      }
+      setIsScratchingDisc(false);
+      lastPointerAngleRef.current = null;
+    }
+  };
+
   return (
     <div className="relative flex flex-col items-center select-none">
-      {/* Vinyl Record Platter Visual Object */}
+      {/* Centered Vinyl Record Platter Visual Object */}
       <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center">
         {/* Subtle Turntable Base Plinth Glow */}
         <div
           className={`absolute inset-4 rounded-full filter blur-xl transition-opacity duration-700 pointer-events-none ${
-            isDaylight
-              ? 'bg-[#F8E6A0]/25'
-              : 'bg-[#E11D48]/30'
+            isDaylight ? 'bg-[#F8E6A0]/25' : 'bg-[#E11D48]/35'
           }`}
         />
 
         {/* Outer Heavy Vinyl Disc */}
         <div
+          data-testid={`vinyl-disc-${vinylSide}`}
+          onPointerDown={handleDiscPointerDown}
+          onPointerMove={handleDiscPointerMove}
+          onPointerUp={handleDiscPointerUp}
+          onPointerCancel={handleDiscPointerUp}
           style={{
-            animation: isPlaying ? 'spin 3.2s linear infinite' : 'none',
+            animation: isPlaying && !isScratchingDisc ? 'spin 3.2s linear infinite' : 'none',
+            transform: scratchAngleOffset !== 0 ? `rotate(${scratchAngleOffset}deg)` : undefined,
+            background: isDaylight
+              ? 'radial-gradient(circle at 50% 50%, #1C1613 0%, #120E0C 52%, #0D0B0A 100%)'
+              : 'radial-gradient(circle at 50% 50%, #4C0519 0%, #2D0411 45%, #160309 82%, #0D0B0A 100%)',
           }}
-          className="relative w-full h-full rounded-full bg-[#0D0B0A] border-4 border-[#2A2420] shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex items-center justify-center overflow-hidden"
+          className={`relative w-full h-full rounded-full border-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing touch-none transition-colors duration-500 ${
+            isDaylight ? 'border-[#2A2420]' : 'border-[#881337]/80'
+          }`}
         >
           {/* Microgroove Rings (Concentric Subtle Gradients) */}
           <div className="absolute inset-2 rounded-full border border-white/5 pointer-events-none" />
@@ -80,27 +150,46 @@ export const VinylTurntable: React.FC<VinylTurntableProps> = ({
 
           {/* Center Record Label */}
           <div
-            className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full flex flex-col items-center justify-center border-2 shadow-inner transition-colors duration-500 ${
+            className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full flex flex-col items-center justify-center border-2 shadow-inner overflow-hidden transition-colors duration-500 ${
               isDaylight
                 ? 'bg-gradient-to-br from-[#F8E6A0] via-[#E9B85B] to-[#D9AE50] border-[#FFF9EA] text-[#4A3004]'
                 : 'bg-gradient-to-br from-[#9F1239] via-[#BE123C] to-[#881337] border-[#FECDD3] text-[#FFFDF5]'
             }`}
           >
+            {activePhoto && !photoError && (
+              <img
+                src={activePhoto}
+                alt={isDaylight ? 'Side A Daylight Label' : 'Side B After-Hours Label'}
+                loading="lazy"
+                onError={() => setPhotoError(true)}
+                style={{ objectPosition: 'center 25%' }}
+                className="absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none"
+              />
+            )}
+
             {/* Center Spindle Hole */}
             <div className="w-3.5 h-3.5 rounded-full bg-[#0D0B0A] border-2 border-white/60 shadow-inner z-10" />
 
             {/* Label Branding */}
             {isDaylight ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-between py-2 text-center pointer-events-none">
-                <span className="text-[7px] font-mono tracking-widest uppercase font-bold">SIDE A</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-between py-2 text-center pointer-events-none z-10">
+                <span className="text-[7px] font-mono tracking-widest uppercase font-bold drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
+                  SIDE A
+                </span>
                 <span className="text-[8px] font-serif italic font-bold">SUNLIGHT</span>
-                <span className="text-[6px] font-mono tracking-wider">33 RPM</span>
+                <span className="text-[6px] font-mono tracking-wider font-semibold">
+                  DAYLIGHT
+                </span>
               </div>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-between py-2 text-center pointer-events-none">
-                <span className="text-[7px] font-mono tracking-widest uppercase font-bold text-[#FECDD3]">SIDE B</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-between py-2 text-center pointer-events-none z-10">
+                <span className="text-[7px] font-mono tracking-widest uppercase font-bold text-[#FECDD3] drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                  SIDE B
+                </span>
                 <span className="text-sm font-serif italic text-white drop-shadow">♡</span>
-                <span className="text-[6px] font-mono tracking-wider text-[#FECDD3]">2:00 AM</span>
+                <span className="text-[6px] font-mono tracking-wider text-[#FECDD3] font-semibold">
+                  AFTER-HOURS
+                </span>
               </div>
             )}
           </div>
@@ -131,11 +220,11 @@ export const VinylTurntable: React.FC<VinylTurntableProps> = ({
         </div>
       </div>
 
-      {/* Turntable Action Controls Bar (Matching Reference Image) */}
+      {/* Turntable Action Controls Bar */}
       <div className="flex flex-wrap items-center justify-center gap-3 mt-4 z-20">
         {/* Quick Side Flip Button */}
         <button
-          onClick={onToggleSide}
+          onClick={() => onToggleSide()}
           className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#D9AE50]/50 bg-[#1A0C06]/75 hover:bg-[#1A0C06]/90 text-[11px] font-mono text-[#F8E6A0] transition-all cursor-pointer backdrop-blur-md shadow-md"
         >
           <span>{isDaylight ? 'Flip to After-Hours 🔥' : 'Flip to Daylight ☀️'}</span>

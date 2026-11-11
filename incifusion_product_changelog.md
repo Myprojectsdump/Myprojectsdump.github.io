@@ -1,5 +1,272 @@
 # Product Changelog
 
+## 2026-11-12 — Telegram Address Routing to @Hereitsme1234, Softer Volume Balance (0.55), and 2-Second Intro Skip (00:02 Start) for Final Poem Song
+
+- **Files Changed:**
+  - `src/acts/FinalGiftReveal.tsx`
+  - `src/data/storyData.ts`
+  - `src/types/story.ts`
+  - `src/utils/musicController.ts`
+  - `tests/unit/storyContentIntegrity.test.ts`
+
+- **What Changed:**
+  - **Telegram Address Routing to `@Hereitsme1234` (`src/acts/FinalGiftReveal.tsx`, `src/data/storyData.ts`, `src/types/story.ts`):**
+    - Configured `telegramUsername: 'Hereitsme1234'` in `storyData.ts`.
+    - Updated `FinalGiftReveal.tsx` to replace WhatsApp messaging with Telegram deep-linking via `handleSendAddressOnTelegram()`, opening `https://t.me/Hereitsme1234?text=${encodeURIComponent(prefill)}` in a new window.
+    - Updated button UI with `Send` icon, `'SEND MY ADDRESS TO SAYANG ON TELEGRAM'` label, and privacy disclaimer stating no address is typed or stored on this website.
+  - **Softer Volume & 2-Second Skip (`00:02` Start) for Final Poem Outro (`src/data/storyData.ts`, `src/utils/musicController.ts`):**
+    - Reduced `defaultVolume` of `closing-its-been-a-long-long-time` from `0.85` down to `0.55` in `storyData.ts` to provide a softer, well-balanced volume that does not overpower the reading experience.
+    - Updated `playFinalPoemOutroOnce()` and `startNewTrackSource()` in `musicController.ts` to automatically skip the initial 2 seconds (`currentTime = 2.0`), starting the music right at `00:02` where the real trumpet melody begins. Added `loadedmetadata` handling to guarantee seeking is applied immediately upon asset load.
+
+- **Why:**
+  - Satisfy user request to decrease the volume of the final poem track, start the playback skipping the first 2 seconds (`00:02` where the melody kicks in), and link the address delivery button directly to Telegram for user `@Hereitsme1234`.
+
+- **Verification:**
+  - Unit tests (`npm run test:unit`) and production build (`npm run build`).
+
+- **Deployment Status:**
+  - Local build. Not committed, zipped, or deployed automatically per engineering rules.
+
+- **Remaining Issues:**
+  - None.
+
+## 2026-11-12 — Letter Screen Cleanup, Dual-Soul Vinyl UI Restoration, Final Gift Climax Address Message Restoration (No Velvet Card Spoilers), and Uploaded "It's Been a Long, Long Time" Trumpet Intro Sync
+
+- **Files Changed:**
+  - `src/acts/act7/letter/BirthdayLetterExperience.tsx`
+  - `src/acts/FinalGiftReveal.tsx`
+  - `src/acts/act4/VinylTurntable.tsx`
+  - `src/acts/act4/ConfessionCard.tsx`
+  - `src/acts/Act4TwoSidesOfUs.tsx`
+  - `src/utils/musicController.ts`
+  - `src/acts/FinalLoveLetter.tsx`
+  - `src/data/storyData.ts`
+  - `src/types/story.ts`
+  - `public/audio/closing-its-been-a-long-long-time.mp3`
+  - `public/audio/closing-lounging-by-moonlight.mp3`
+  - `audio/closing-its-been-a-long-long-time.mp3`
+  - `audio/closing-lounging-by-moonlight.mp3`
+
+- **What Changed:**
+  - **Removed Birthday Gift / Address Box from the Letter Screen (`src/acts/act7/letter/BirthdayLetterExperience.tsx`):**
+    - Removed the `"ONE TINY THING, CINTAKU"` / `"SEND MY ADDRESS TO SAYANG ON TELEGRAM"` block from the unfolded birthday letter so the letter screen remains purely focused on the birthday letter and voice note.
+  - **Restored the Earlier Address Request Message on the Final Gift Climax Screen & Removed All Velvet Card / Glimmer Spoilers (`src/acts/FinalGiftReveal.tsx`, `src/data/storyData.ts`, `src/types/story.ts`):**
+    - Restored the earlier birthday gift address request copy (`"FOR YOUR HANDS, NOT JUST YOUR SCREEN"`, `"A Real Birthday Gift Awaits..."`, `"Sayang has one little question, baby. I'd love to send a little surprise your way. When you have a moment, send me the delivery address you'd be comfortable receiving it at. No rush—just message me privately. ❤️"`) and the private delivery address button inside `STATE C: THE ACTUAL BIRTHDAY GIFT SHOWCASE` in `FinalGiftReveal.tsx`.
+    - Removed all mentions and hints telling her to look around the table, look for a card, or notice a glimmer (`"Click the velvet card ✦"`, `"A quiet little note is resting here..."`, `"Wait... something is glimmering beneath the box ✦"`, `"✦ Notice the golden glimmer..."`, and the table hint in `deliveryOrRedemptionNote`). The velvet card now rests quietly on the table with an understated `U ♥ S` / `For Uci ♥` monogram until she is told on the phone call to find and click it.
+  - **Fixed the Dual-Soul Vinyl UI & Confession Card Readability (`src/acts/act4/VinylTurntable.tsx`, `src/acts/act4/ConfessionCard.tsx`, `src/acts/Act4TwoSidesOfUs.tsx`):**
+    - Replaced the two offset overlapping pink discs in `VinylTurntable.tsx` with a single centered vinyl record platter (`w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96`) positioned directly on the turntable, featuring warm obsidian-gold styling for Side A (`DAYLIGHT`) and rich deep ruby-crimson styling for Side B (`AFTER-HOURS`), upright readable center labels, tonearm, and pointer-drag scratching.
+    - Fixed the transparent background bug in `ConfessionCard.tsx` (caused by `bg-[#FFF5ED]/96` not being a valid Tailwind v3 opacity scale step) by restoring `bg-[#FFF5ED]/95` and explicit `rgba(255, 245, 237, 0.95)` inline background styling so the dark `#3E1018` confession quote text is 100% legible.
+    - Adjusted top padding in `Act4TwoSidesOfUs.tsx` (`pt-14 sm:pt-14`) so the `ACT IV · THE TWO SIDES OF US` pill does not collide with `TopBrandBar`.
+  - **Linked & Synced User's Uploaded *"It's Been a Long, Long Time"* Song for Immediate Trumpet Intro on Entering the Poem Screen (`public/audio/`, `src/utils/musicController.ts`, `src/acts/FinalLoveLetter.tsx`, `src/data/storyData.ts`):**
+    - Synced the user's uploaded `1,419,051`-byte MP3 from `audio/closing-lounging-by-moonlight.mp3` into `public/audio/closing-its-been-a-long-long-time.mp3` and `public/audio/closing-lounging-by-moonlight.mp3`.
+    - Updated `musicController.playFinalPoemOutroOnce()` to cancel any pending fade-out timers, reset `currentTime = 0`, set `defaultVolume: 0.85` immediately without a `0.01` fade-in muffle so the opening trumpets play crisp and clear from `0:00`, and invoked `playFinalPoemOutroOnce()` directly inside `handleEnterMain()` and `handleSkipIntro()` in `FinalLoveLetter.tsx`.
+
+- **Why:**
+  - Address user feedback from screenshots to remove the gift/address box from the letter screen, restore the address message on the Final Gift Climax screen without spoiling the hidden velvet card, fix the Dual-Soul Vinyl platter and card contrast, and ensure the uploaded *"It's Been a Long, Long Time"* trumpet intro plays immediately when entering the poem screen.
+
+- **Verification:**
+  - Unit tests (`npm run test:unit`) passed 29/29 tests across all 4 suites.
+  - Production build (`npm run build`: `tsc --noEmit && vite build`) verified cleanly with zero TypeScript or bundler errors.
+
+- **Deployment Status:**
+  - Local build and root static assets synced. Not committed, zipped, or deployed automatically per engineering rules.
+
+- **Remaining Issues:**
+  - None.
+
+## 2026-11-12 — Final Refinement & Audio Repair: Dual Translucent Ruby Vinyl, 18+ Gold-Foil Vault, Felt-Piano Cake Melody, Relight Candle Fix, Final Poem Outro Sync, Unified Sound & Navigation, Terminology & Telegram Request
+
+- **Files Changed:**
+  - `src/types/story.ts`
+  - `src/data/storyData.ts`
+  - `src/config/mediaManifest.ts`
+  - `src/config/preludeContent.ts`
+  - `src/config/finalLoveLetterContent.ts`
+  - `src/engine/audio/ProceduralAudio.ts`
+  - `src/utils/musicController.ts`
+  - `src/store/useExperienceStore.ts`
+  - `src/components/hud/SoundControlPill.tsx`
+  - `src/components/hud/TopBrandBar.tsx`
+  - `src/components/hud/ComfortControls.tsx`
+  - `src/acts/PreludeInvitation.tsx`
+  - `src/acts/OpeningPortal.tsx`
+  - `src/acts/act4/VinylTurntable.tsx`
+  - `src/acts/act4/VinylExperience.tsx`
+  - `src/acts/act4/ConstellationMap.tsx`
+  - `src/acts/act5/ScratchVault.tsx`
+  - `src/engine/canvas2d/FoilScratchCanvas.tsx`
+  - `src/acts/act7/cake/CakeBlowControls.tsx`
+  - `src/acts/act7/lantern/SkyLanternExperience.tsx`
+  - `src/acts/act7/letter/BirthdayLetterExperience.tsx`
+  - `src/acts/FinalGiftReveal.tsx`
+  - `src/acts/AfterCreditsVipVault.tsx`
+  - `src/acts/vip/VipCouponCard.tsx`
+  - `src/acts/FinalLoveLetter.tsx`
+  - `public/audio/act-2-skyline-piano.mp3`
+  - `public/audio/closing-lounging-by-moonlight.mp3`
+  - `public/audio/LICENSES.md`
+  - `tests/unit/storyContentIntegrity.test.ts`
+
+- **What Changed:**
+  - **Dual Translucent Ruby-Red Vinyl (`src/acts/act4/VinylTurntable.tsx` & `src/acts/act4/VinylExperience.tsx`):**
+    - Rendered two visibly separate translucent ruby-red and deep crimson vinyl records (`SIDE A / DAYLIGHT` and `SIDE B / AFTER-HOURS`) styled like transparent tinted acrylic / smoked red glass with visible concentric microgrooves beneath, rose-red internal conic reflections, and champagne-gold edge highlights.
+    - Selecting Daylight activates Side A; selecting After-Hours activates Side B. Only one soundtrack plays at a time; the active disc rotates while the companion disc remains visually present and stationary.
+    - Added interactive pointer-drag scratching on the active record wired to `musicController.scratchActiveVinyl(deltaSeconds)` without causing overlapping tracks.
+  - **Act V — Four Adult-Oriented Gold-Foil Cards & 18+ Consent Gate (`src/data/storyData.ts`, `src/acts/act5/ScratchVault.tsx`, `src/engine/canvas2d/FoilScratchCanvas.tsx`):**
+    - Updated the 4 gold-foil cards to `YOU MAKE ME STUPIDLY HORNY` (`CONFESSION AFTER DARK 🔥`), `2:00 AM — NO FILTER` (`PRIVATE CHANNEL 🔥`), `OUR PRIVATE AFTER-HOURS CALL` (`18+ · MUTUAL YES ONLY`), and `FUCK, I LOVE YOUR LITTLE MIND` (`DANGEROUSLY ADDICTED TO YOU ♥`).
+    - Added an 18+ confirmation gate before revealing explicitly adult content, keeping all intimacy consensual and mutually wanted.
+  - **Act VII — Felt-Piano Cake Melody & Central Audio Lifecycle (`src/engine/audio/ProceduralAudio.ts`, `src/utils/musicController.ts`, `src/acts/act7/cake/CakeBlowControls.tsx`):**
+    - Replaced the repetitive music-box chime with `playBirthdayMelodyOnce()` — an 8.0-second warm Web Audio API *Happy Birthday* arrangement in F major using soft felt-piano tones, delicate celesta shimmer, and rounded lower-register bass notes, played once per candle extinguish and guarded against overlap.
+    - Wired `musicController.playBirthdayCandleSequenceOnce()` to duck Act VII background music on extinguish, play `playBirthdayMelodyOnce()`, and smoothly restore the Act VII track afterward.
+    - Added `proceduralAudio.stopAllActiveLoops()` on every chapter transition so no interval or synth loop leaks across acts.
+  - **Repair `RELIGHT CANDLE ✨` (`src/acts/act7/cake/CakeBlowControls.tsx`, `src/store/useExperienceStore.ts`):**
+    - Updated button label to `RELIGHT CANDLE ✨`.
+    - Tapping `RELIGHT CANDLE ✨` stops any active microphone session, clears pending hold timers, stops any active birthday melody, resets `blowProgress = 0` and local `hasExtinguishedRef`, re-enables `Mic` and `Hold & Blow` controls, and restores the candle flame without erasing the birthday letter, released lantern, saved wish, opened envelope, or redeemed VIP passes.
+  - **Opening Interaction Sound (`playOpeningSignature()`) (`src/engine/audio/ProceduralAudio.ts`, `src/acts/PreludeInvitation.tsx`, `src/acts/OpeningPortal.tsx`):**
+    - Implemented `playOpeningSignature()` (~2.0s 4-note felt-piano/celesta phrase with warm sub-pad and rose-gold shimmer), triggered once when intentionally beginning the experience.
+  - **Final Poem Scene — `"IT'S BEEN A LONG, LONG TIME"` Synchronization (`src/acts/FinalLoveLetter.tsx`, `src/utils/musicController.ts`, `public/audio/`):**
+    - Configured `/audio/closing-its-been-a-long-long-time.mp3` with automatic fallback to the downloaded licensed Mixkit vintage jazz slow-dance track `/audio/closing-lounging-by-moonlight.mp3` (*Lounging By Moonlight* by Ahjay Stelino).
+    - Synchronized in `FinalLoveLetter.tsx` so the closing track never starts during Act VII or the black-screen intro/declaration sequence, and only triggers once (`hasTriggeredOutroTrackRef`) when `phase === 'MAIN'` after the poem view reveals. Added a non-blocking fallback indicator if audio is unavailable.
+  - **Expanded Music Across the Seven Acts (`public/audio/` & `public/audio/LICENSES.md`):**
+    - Downloaded `public/audio/act-2-skyline-piano.mp3` (*Skyline* by Eugenio Mininni) for Act II and `public/audio/closing-lounging-by-moonlight.mp3` (*Lounging By Moonlight* by Ahjay Stelino) for the Final Poem fallback, and documented all 10 tracks + optional tracks in `public/audio/LICENSES.md`.
+  - **Single Global `SOUND ON` / `SOUND OFF` Control & `BACK` / `NEXT` Navigation (`src/components/hud/SoundControlPill.tsx`, `src/components/hud/TopBrandBar.tsx`, `src/components/hud/ComfortControls.tsx`, `src/acts/OpeningPortal.tsx`):**
+    - Consolidated all audio controls into a single visible `SOUND ON` / `SOUND OFF` button in `SoundControlPill.tsx` and removed the duplicate sound toggle in `OpeningPortal.tsx`.
+    - Added explicit `BACK` and `NEXT` buttons in `TopBrandBar.tsx` across all acts (including mobile), disabled `BACK` on Act I, wired `NEXT` on the final act to replay from Act I, and removed the duplicate `Skip Scene` button from `ComfortControls.tsx`.
+  - **Terminology & Grounded LDR Honesty (`src/`):**
+    - Replaced all user-facing occurrences of `pacar`/`pacarku` with `cinta`/`cintaku` and `boyfriend` with `Sayang`.
+    - Removed all false future meeting/reunion promises and included the grounded LDR sincerity paragraph in `STORY_DATA.birthdayLetter.paragraphs`.
+  - **Telegram Address Request Inside the Existing Letter Page (`src/acts/act7/letter/BirthdayLetterExperience.tsx`, `src/acts/FinalGiftReveal.tsx`, `src/data/storyData.ts`):**
+    - Removed the WhatsApp delivery button from `FinalGiftReveal.tsx` and `BirthdayLetterExperience.tsx`.
+    - Added the `"ONE TINY THING, CINTAKU"` Telegram request section (`"SEND MY ADDRESS TO SAYANG ON TELEGRAM"`) inside `BirthdayLetterExperience.tsx` using `https://t.me/${telegramUsername}?text=${encodeURIComponent(message)}` with username validation and zero storage of any address.
+
+- **Why:**
+  - Complete the Final Refinement & Audio Repair pass for Uci while preserving the approved visual identity, design tokens, and layout architecture.
+
+- **Verification:**
+  - Unit tests (`npm run test:unit`) passed 29/29 tests across all 4 suites.
+  - Production build (`npm run build`: `tsc --noEmit && vite build`) verified cleanly with zero TypeScript or bundler errors.
+
+- **Deployment Status:**
+  - Local build and root static assets synced. Not committed, zipped, or deployed automatically per engineering rules.
+
+- **Remaining Issues:**
+  - Set `telegramUsername` in `src/data/storyData.ts` (replace `'YOUR_TELEGRAM_USERNAME'` with actual Telegram username without `@`), drop Uci's `.jpg` photos into `public/photos/`, and optionally place `closing-its-been-a-long-long-time.mp3` into `public/audio/` (otherwise it automatically plays the included licensed vintage jazz slow-dance fallback `closing-lounging-by-moonlight.mp3`).
+
+## 2026-11-11 — Master Experience Upgrade: LDR Personalization, Local Mixkit Soundtrack, Photography System & Act Refinements
+
+- **Files Changed:**
+  - `src/types/story.ts`
+  - `src/types/story.types.ts`
+  - `src/data/storyData.ts`
+  - `src/config/storyContent.ts`
+  - `src/config/act5Ingredients.ts`
+  - `src/config/act4ConstellationLayout.ts`
+  - `src/config/mediaManifest.ts`
+  - `src/utils/musicController.ts`
+  - `src/components/hud/SoundControlPill.tsx`
+  - `src/components/media/SmartImage.tsx`
+  - `src/acts/PreludeInvitation.tsx`
+  - `src/acts/OpeningPortal.tsx`
+  - `src/acts/Act1TwoCountriesOneSky.tsx`
+  - `src/acts/Act2LittleThingsIKeep.tsx`
+  - `src/engine/canvas2d/FogMirrorCanvas.tsx`
+  - `src/acts/act4/VinylExperience.tsx`
+  - `src/acts/act4/VinylTurntable.tsx`
+  - `src/acts/act4/ConfessionCard.tsx`
+  - `src/acts/act4/ConfessionTrackList.tsx`
+  - `src/acts/act4/ConstellationMap.tsx`
+  - `src/acts/act4/StarDetailCard.tsx`
+  - `src/acts/act5/IngredientVial.tsx`
+  - `src/acts/act5/IngredientShelf.tsx`
+  - `src/acts/act5/TemperatureGauge.tsx`
+  - `src/engine/canvas2d/FoilScratchCanvas.tsx`
+  - `src/acts/Act6AcrossTheDistance.tsx`
+  - `src/acts/act7/letter/BirthdayLetterExperience.tsx`
+  - `src/acts/FinalGiftReveal.tsx`
+  - `src/acts/vip/VipCouponCard.tsx`
+  - `public/audio/act-1-vastness.mp3`
+  - `public/audio/act-2-beautiful-dream.mp3`
+  - `public/audio/act-3-daydreamin.mp3`
+  - `public/audio/act-3-romantic-01.mp3`
+  - `public/audio/act-4-silent-descent.mp3`
+  - `public/audio/act-5-jb-rnb.mp3`
+  - `public/audio/act-6-possible-dreams.mp3`
+  - `public/audio/act-7-discover.mp3`
+  - `public/audio/LICENSES.md`
+  - `public/photos/README.md`
+  - `vite.config.ts`
+  - `tests/unit/storyContentIntegrity.test.ts`
+
+- **What Changed:**
+  - **Absolute Design Preservation:** Preserved the approved visual aesthetic, color palette, typography, backgrounds, section layouts, and animations across all chapters.
+  - **Authentic Long-Distance Relationship (LDR) Copy:** Replaced all fabricated physical memories (never met in person yet) with authentic long-distance moments for Uci (`pacarku`, `cintaku`, `sayang`): late-night calls, sleepy voice notes, camera expressions, shared playlists, virtual movie dates, counting down to the first real hug, and 2:00 AM private energy.
+  - **Centralized Content & Types (`src/data/storyData.ts`, `src/types/story.ts`):** Unified all 14 photo paths (`PHOTO_PATHS`), 8 Mixkit audio tracks (`SOUNDTRACK_MANIFEST`), vinyl Side A/B cards, 8 constellation nodes, 4 LDR keepsake memories, 4 potion ingredients (`20%`, `20%`, `20%`, `40%`), 4 scratch-card messages, 6 heartbeat whispers, LDR birthday letter, gift reveal address prompt, `boyfriendWhatsAppNumber` (default `""`), and 6 LDR VIP coupons.
+  - **Locally Hosted Mixkit Soundtrack (`src/utils/musicController.ts` & `public/audio/`):** Downloaded all 8 official Mixkit Free Stock Music MP3s into `public/audio/` with `public/audio/LICENSES.md`. Implemented `musicController.ts` using native `HTMLAudioElement` with 1.5s cosine crossfades, chapter/mode auto-switching, and fallback synthesis. Unified audio controls into `SoundControlPill.tsx` and removed duplicate top-right audio buttons from `PreludeInvitation.tsx` and `OpeningPortal.tsx`.
+  - **Photography System (`public/photos/` & `SmartImage.tsx`):** Configured `/photos/*.jpg` paths across all acts with `loading="lazy"`, `object-position`, and automatic graceful fallback to `HeirloomMediaPlaceholder` / warm reflection when user photo files are not yet added to `public/photos/`.
+  - **Act-by-Act Refinements:**
+    - **Opening (`OpeningPortal.tsx`):** Removed bottom `SCROLL TO EXPLORE` indicator and redundant `Continue` button; `ENTER HER UNIVERSE` unlocks audio and transitions directly.
+    - **Act I (`Act1TwoCountriesOneSky.tsx`):** Added cosmic portrait locket (`uci-portrait.jpg`) on bridge connection and `/audio/my-voice-note.mp3` support.
+    - **Act II (`Act2LittleThingsIKeep.tsx`):** Updated header to `"Four Little Things I Want You to Keep."` with 4 LDR keepsake cards (`01 — OPEN WHEN YOU MISS ME`, `02 — A LITTLE PIECE OF MY VOICE`, `03 — OUR MIDNIGHT RITUALS` with 6 bullet rituals, `04 — OUR FIRST HELLO`).
+    - **Act III (`FogMirrorCanvas.tsx`):** Rendered `uci-mirror.jpg` underneath the condensation canvas so wiping reveals her reflection, alongside 5 LDR mirror notes.
+    - **Act IV (`VinylExperience.tsx`, `VinylTurntable.tsx`, `ConfessionCard.tsx`, `ConfessionTrackList.tsx`, `ConstellationMap.tsx`, `StarDetailCard.tsx`):** Wired Side A (`act-3-daydreamin.mp3`, `uci-daylight.jpg`) and Side B (`act-3-romantic-01.mp3`, `uci-afterhours.jpg`) to `musicController`; added 4 clickable flip cards per side with animated gold borders; updated 8 LDR constellation nodes with local photos, rose-gold/crimson-champagne/warm-gold accents, stronger haptics on spicy nodes 3–6, and supernova burst on 8/8 discovery.
+    - **Act V (`IngredientVial.tsx`, `TemperatureGauge.tsx`, `FoilScratchCanvas.tsx`):** Updated formula to `20%`, `20%`, `20%`, and `40% Bedroom Menace & Mischief` (prominent crimson bottle), overheat banner to `"DANGER: TOO HOT TO HANDLE. BOYFRIEND WILLPOWER COMPROMISED."`, and scratch card auto-reveal threshold to `>= 45%`.
+    - **Act VI (`Act6AcrossTheDistance.tsx`):** Updated to 6 LDR heartbeat whispers and added completion haptic celebration at 8.0s.
+    - **Act VII & Final Gift (`BirthdayLetterExperience.tsx`, `FinalGiftReveal.tsx`):** Added `uci-finale.jpg` framing, LDR distance paragraph in the birthday letter, and `"A REAL BIRTHDAY GIFT AWAITS..."` private WhatsApp click-to-chat delivery address button (`https://wa.me/...`, never storing address in `localStorage`).
+    - **VIP Passbook (`VipCouponCard.tsx`):** Updated 6 LDR VIP coupons with serial numbers, confetti/sparkle burst on redemption, and `"REDEEMED BY UCI — SCREENSHOT & SEND TO YOUR BOYFRIEND."` badge.
+
+- **Why:**
+  - Execute the Master Experience Upgrade for Uci with 100% authentic LDR copy, local Mixkit soundtrack playback, centralized photo/story configuration, and zero visual redesign.
+
+- **Verification:**
+  - Unit tests (`npm run test:unit`) passed 28/28 tests across all 4 suites.
+  - Production build (`npm run build`: `tsc --noEmit && vite build`) verified cleanly with exit code 0.
+
+- **Deployment Status:**
+  - Local build and root static assets synced (`dist/`, `assets/`, `audio/`, `photos/`, `media/`). Not committed or pushed automatically per engineering rules.
+
+- **Remaining Issues:**
+  - User should drop Uci's 14 personal `.jpg` photographs into `public/photos/` (and optionally `public/audio/my-voice-note.mp3` and `boyfriendWhatsAppNumber` in `src/data/storyData.ts`) before final gift delivery.
+
+## 2026-11-04 — Climax Page Halt, Tactile Velvet Card Surprise & 360° Manual Rotation Fix (`FinalGiftReveal.tsx` & `LuxuryGiftBoxRig.tsx`)
+
+- **Files Changed:**
+  - `src/acts/FinalGiftReveal.tsx`
+  - `src/engine/webgl/objects/LuxuryGiftBoxRig.tsx`
+  - `src/store/transientMotionState.ts`
+  - `src/types/scene.types.ts`
+  - `tests/e2e/finalGiftVerification.spec.ts`
+
+- **What Changed:**
+  - **Climax Page Halt (No Auto-Advancing):**
+    - Removed automatic timers that previously transitioned `GIFT_REVEALED` into `QUIET_MOMENT` after 6.5s. The experience now stops permanently on the opened gift showcase, giving the user and his girlfriend unlimited time on call to admire the 3D gift box, photo, and heartfelt personal message without being rushed.
+  - **Tactile Burgundy Velvet Card Lying on the Table:**
+    - Rendered an authentic physical-looking burgundy velvet keepsake card resting on the table/pedestal surface during `GIFT_REVEALED`.
+    - Features deep wine velvet gradient (`#4A0E22` -> `#1F030C`), gilded gold foil border, miniature 3D golden heart wax seal stamp (`♥`), traveling starlight glint animation, and embossed lettering: `"P.S. Kept For You"`, `"A quiet little note is resting here..."`, and `"Click the velvet card ✦"`.
+    - Styled with realistic 3D table perspective tilt (`rotateX(10deg) rotateZ(-2.5deg)`) and deep table shadow.
+    - Designed specifically so the boyfriend can tell her on phone call: *"Do you see that little velvet card lying there? Click it!"*
+    - Clicking the velvet card plays a chime tone (`playMirrorNoteChime`), sets `window.__UCI_TEST_PROBES__.velvetCardClicked = true`, and triggers the plot twist: the 3D secret drawer slides open with golden starlight and the postscript card unfolds (`"P.S. — ONE LAST THING"`, `"You thought that was the whole picture?"`, `"Oh, we're not done yet. ❤️"`).
+  - **360° 3D Gift Box Manual Drag Rotation Fix:**
+    - Diagnosed root cause: React DOM `<main>` layer at `z-20` and container `pointer-events-none` blocked mouse/touch drag events from reaching WebGL Canvas at `z-10`, and R3F group lacked geometry raycast intersection.
+    - Created a dedicated transparent interactive pointer drag viewport over the 3D box region in `FinalGiftReveal.tsx` with `pointer-events-auto`, `touch-none`, `cursor-grab`, `active:cursor-grabbing`, and pointer capture (`setPointerCapture`).
+    - Added `addGiftBoxUserRotation` and `setGiftBoxUserRotation` in `transientMotionState.ts` that update `giftBoxUserEuler` and mirror to `window.__UCI_TEST_PROBES__`.
+    - In `LuxuryGiftBoxRig.tsx`, bound `useFrame` to damp `orbitGroupRef` orientation directly to `transientMotionState.giftBoxUserEuler`, and added an invisible hit box (`<boxGeometry args={[3.2, 3.2, 3.2]} />`) inside `orbitGroupRef` for direct mesh raycasting.
+    - Added angle preset buttons (`30°`, `Front`, `Top`, `Reset ↺`) in the inspection HUD for quick single-tap camera angles.
+
+- **Why:**
+  - Satisfy user request to stop on the climax page indefinitely for a phone call, hide the "we're not done yet" message inside a physical velvet card lying on the table, and make the 3D box rotatable manually in 360°.
+
+- **Verification:**
+  - Production build (`npm run build`: `tsc --noEmit && vite build`) passed with exit code 0.
+  - Unit tests (`npm run test:unit`) passed 25/25 tests across all 4 test suites.
+  - Playwright E2E tests (`tests/e2e/finalGiftVerification.spec.ts`) passed 4/4 tests across Desktop 1440x900, Desktop 1280x720, and Mobile 390x844 viewports.
+  - Visually inspected captured screenshots: `climax_velvet_card_resting.png` and `unfolded_postscript_note.png`.
+
+- **Deployment Status:**
+  - Local build and root assets synced. Not deployed or pushed automatically per rules.
+
+- **Remaining Issues:**
+  - None.
+
 ## 2026-11-03 — The Royal Gift & The Hidden Postscript Climax (`FinalGiftReveal.tsx` & `LuxuryGiftBoxRig.tsx`)
 
 - **Files Changed:**

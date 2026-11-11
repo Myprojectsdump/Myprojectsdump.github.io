@@ -326,8 +326,8 @@ export const useExperienceStore = create<ExperienceState>((set, get) => ({
   },
 
   relightCandle: () => {
-    set({ isCandleExtinguished: false, isLanternReleased: false });
-    savePersistedState({ isCandleExtinguished: false, isLanternReleased: false });
+    set({ isCandleExtinguished: false });
+    savePersistedState({ isCandleExtinguished: false });
   },
 
   setBirthdayWish: (text: string, naughty: boolean) => {

@@ -1,7 +1,7 @@
 // src/engine/canvas2d/FoilScratchCanvas.tsx
 
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { Heart, RotateCcw, Sparkles } from 'lucide-react';
+import { Heart, Lock, RotateCcw, Sparkles } from 'lucide-react';
 import { useExperienceStore } from '../../store/useExperienceStore';
 import { ScratchCardData } from '../../types/story.types';
 import { SUPPLEMENTARY_REDEMPTION_GUIDANCE } from '../../config/storyContent';
@@ -11,14 +11,21 @@ const SCRATCH_ROWS = 24;
 
 interface FoilScratchCanvasProps {
   card: ScratchCardData;
+  isAdultConsentConfirmed?: boolean;
+  onConfirmAdultConsent?: () => void;
 }
 
-export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) => {
+export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({
+  card,
+  isAdultConsentConfirmed = true,
+  onConfirmAdultConsent,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isScratching = useRef(false);
   const grid = useRef<boolean[]>(new Array(SCRATCH_COLS * SCRATCH_ROWS).fill(false));
 
   const [isFullyDissolved, setIsFullyDissolved] = useState(false);
+  const [showConsentPrompt, setShowConsentPrompt] = useState(false);
 
   const revealedScratchIds = useExperienceStore((state) => state.revealedScratchIds);
   const savedScratchIds = useExperienceStore((state) => state.savedScratchIds);
@@ -29,6 +36,7 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
   const isRevealed = revealedScratchIds.includes(card.id);
   const isSaved = savedScratchIds.includes(card.id);
   const guidance = SUPPLEMENTARY_REDEMPTION_GUIDANCE[card.id];
+  const needsConsentGate = Boolean(card.requiresAdultConsent) && !isAdultConsentConfirmed;
 
   const drawFoil = useCallback(() => {
     const canvas = canvasRef.current;
@@ -137,7 +145,7 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
   }, []);
 
   useEffect(() => {
-    if (isRevealed) {
+    if (isRevealed && !needsConsentGate) {
       setIsFullyDissolved(true);
       return;
     }
@@ -156,7 +164,7 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
     resize();
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
-  }, [drawFoil, isRevealed]);
+  }, [drawFoil, isRevealed, needsConsentGate]);
 
   const checkScratchPercentage = useCallback(() => {
     let cleared = 0;
@@ -165,13 +173,18 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
     }
     const percent = (cleared / grid.current.length) * 100;
 
-    if (percent >= 38 && !isRevealed) {
+    if (percent >= 45 && !isRevealed) {
       revealScratchCard(card.id);
       setIsFullyDissolved(true);
     }
   }, [card.id, isRevealed, revealScratchCard]);
 
   const scratchAt = (clientX: number, clientY: number) => {
+    if (needsConsentGate) {
+      setShowConsentPrompt(true);
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas || isFullyDissolved) return;
     const ctx = canvas.getContext('2d');
@@ -217,12 +230,16 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (needsConsentGate) {
+      setShowConsentPrompt(true);
+      return;
+    }
     isScratching.current = true;
     scratchAt(e.clientX, e.clientY);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isScratching.current) return;
+    if (!isScratching.current || needsConsentGate) return;
     scratchAt(e.clientX, e.clientY);
   };
 
@@ -231,8 +248,19 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
   };
 
   const handleManualReveal = () => {
+    if (needsConsentGate) {
+      setShowConsentPrompt(true);
+      return;
+    }
     revealScratchCard(card.id);
     setIsFullyDissolved(true);
+  };
+
+  const handleConfirmConsentAndUnlock = () => {
+    setShowConsentPrompt(false);
+    if (onConfirmAdultConsent) {
+      onConfirmAdultConsent();
+    }
   };
 
   const handleRefoil = () => {
@@ -245,8 +273,12 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
 
   return (
     <div className="relative w-full min-h-[220px] sm:min-h-[240px] rounded-2xl overflow-hidden bg-[#1A0C06]/85 border border-[#D9AE50]/70 shadow-[0_12px_35px_rgba(0,0,0,0.85)] flex flex-col justify-between p-5 select-none transition-all duration-300 backdrop-blur-md">
-      {/* Secret Card Underlying Content (Verbatim from STORY_DATA.scratchCards) */}
-      <div className="flex flex-col gap-2 relative z-0">
+      {/* Secret Card Underlying Content (Protected by 18+ Consent Gate until confirmed) */}
+      <div
+        className={`flex flex-col gap-2 relative z-0 transition-all duration-300 ${
+          needsConsentGate ? 'blur-md select-none pointer-events-none opacity-40' : ''
+        }`}
+      >
         <div className="flex items-center justify-between pb-2 border-b border-[#D9AE50]/20">
           <span className="text-[10px] font-mono tracking-wider px-2.5 py-0.5 rounded-full bg-[#702B42]/60 text-[#FDA4AF] border border-[#FDA4AF]/30 uppercase font-semibold">
             {card.tag}
@@ -292,7 +324,7 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
           <span>{isSaved ? 'Promise Kept ♥' : 'Save Promise ♥'}</span>
         </button>
 
-        {isRevealed && (
+        {isRevealed && !needsConsentGate && (
           <button
             onClick={handleRefoil}
             className="flex items-center gap-1 text-[10px] font-mono text-[#F8E6A0]/60 hover:text-[#FFFDF5] cursor-pointer"
@@ -304,7 +336,7 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
       </div>
 
       {/* Gold Foil Scratch Canvas Layer */}
-      {!isFullyDissolved && (
+      {(!isFullyDissolved || needsConsentGate) && (
         <canvas
           ref={canvasRef}
           onPointerDown={handlePointerDown}
@@ -315,14 +347,46 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({ card }) =>
         />
       )}
 
+      {/* 18+ Confirmation Gate Modal Overlay on Card when triggered */}
+      {needsConsentGate && showConsentPrompt && (
+        <div
+          data-testid={`adult-consent-gate-${card.id}`}
+          className="absolute inset-0 z-30 bg-[#0D0609]/95 backdrop-blur-md p-4 flex flex-col items-center justify-center text-center gap-2.5 rounded-2xl border border-[#E11D48]/50"
+        >
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#881337]/60 border border-[#FDA4AF]/40 text-[10px] font-mono uppercase tracking-widest text-[#FECDD3]">
+            <Lock className="w-3 h-3 text-[#FDA4AF]" />
+            <span>18+ · MUTUAL YES ONLY</span>
+          </div>
+          <p className="font-serif italic text-sm text-[#FFFDF5] max-w-xs leading-snug">
+            Private After-Hours Confession for Uci. Explicit 18+ intimacy — always your pace, your boundaries.
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <button
+              type="button"
+              onClick={handleConfirmConsentAndUnlock}
+              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#F8E6A0] via-[#FFF9EA] to-[#F8E6A0] text-[#4A3004] font-mono text-[10px] font-bold uppercase tracking-wider shadow-[0_0_16px_rgba(233,196,106,0.5)] cursor-pointer"
+            >
+              I Am 18+ · Unlock Vault 🔥
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowConsentPrompt(false)}
+              className="px-3 py-1.5 rounded-full border border-[#D9AE50]/40 bg-[#1A0C06]/80 text-[#F8E6A0]/80 font-mono text-[10px] uppercase tracking-wider cursor-pointer"
+            >
+              Keep Sealed
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Accessible One-Click Reveal Button */}
-      {!isFullyDissolved && (
+      {(!isFullyDissolved || needsConsentGate) && !showConsentPrompt && (
         <button
           onClick={handleManualReveal}
           aria-label={`Reveal promise: ${card.secretTitle}`}
           className="absolute bottom-2.5 right-2.5 z-20 text-[9px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#1A0C06]/90 text-[#F8E6A0] hover:text-[#FFFDF5] border border-[#D9AE50]/60 backdrop-blur-md shadow cursor-pointer"
         >
-          Reveal This Promise
+          {needsConsentGate ? '18+ · Unlock to Scratch' : 'Reveal This Promise'}
         </button>
       )}
     </div>

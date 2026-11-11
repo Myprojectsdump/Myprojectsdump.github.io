@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX, ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
+import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import { PRELUDE_CONTENT } from '../config/preludeContent';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
@@ -26,7 +26,6 @@ export const PreludeInvitation: React.FC = () => {
   const [announcement, setAnnouncement] = useState<string>(PRELUDE_CONTENT.aria.envelopeLabel);
 
   const isMuted = useExperienceStore((state) => state.isMuted);
-  const toggleMute = useExperienceStore((state) => state.toggleMute);
   const setCurrentChapter = useExperienceStore((state) => state.setCurrentChapter);
   const reducedMotionChoice = useExperienceStore((state) => state.reducedMotionChoice);
 
@@ -202,8 +201,7 @@ export const PreludeInvitation: React.FC = () => {
     setStage('transitioning');
 
     if (!isMuted) {
-      proceduralAudio.playCosmicBloomChord();
-      proceduralAudio.playStarBridgeChime();
+      proceduralAudio.playOpeningSignature();
     }
 
     // Spawn sweeping upward stardust
@@ -270,16 +268,6 @@ export const PreludeInvitation: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Mute Toggle Pill */}
-          <button
-            onClick={toggleMute}
-            aria-label={isMuted ? 'Unmute Sound' : 'Mute Sound'}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel border border-champagne-gold/30 text-champagne-gold/90 hover:text-champagne-gold hover:border-champagne-gold/60 text-xs font-mono uppercase tracking-wider transition-all duration-300"
-          >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{isMuted ? 'Muted' : 'Sound On'}</span>
-          </button>
-
           {/* Skip Intro Button */}
           <button
             onClick={handleSkipIntro}

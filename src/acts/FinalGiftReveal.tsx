@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RotateCcw, Package, Heart, Eye, Gift } from 'lucide-react';
+import { Sparkles, RotateCcw, Package, Heart, Eye, Gift, Send } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import {
   setGiftRevealPhase,
@@ -10,7 +10,7 @@ import {
   setGiftBoxUserRotation,
 } from '../store/transientMotionState';
 import { GiftRevealPhase } from '../types/scene.types';
-import { CONFIGURED_ACTUAL_GIFT } from '../config/storyContent';
+import { CONFIGURED_ACTUAL_GIFT, STORY_DATA } from '../config/storyContent';
 import { SmartImage } from '../components/media/SmartImage';
 import { HeirloomMediaPlaceholder } from '../components/media/HeirloomMediaPlaceholder';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
@@ -279,10 +279,6 @@ export const FinalGiftReveal: React.FC = () => {
     updatePhase('POSTSCRIPT_REVEAL');
   };
 
-  const handleRevealPostscriptNow = () => {
-    handleOpenVelvetCard();
-  };
-
   // Final Action: "THERE'S A LITTLE MORE... →"
   const handleProceedToNextSurprise = () => {
     if (isNavigatingRef.current) return;
@@ -300,6 +296,20 @@ export const FinalGiftReveal: React.FC = () => {
     scheduleTimer(() => {
       setCurrentChapter('AFTER_CREDITS');
     }, navDelay);
+  };
+
+  const handleSendAddressOnTelegram = () => {
+    const cleanUsername = (STORY_DATA.telegramUsername || 'Hereitsme1234').replace(/^@/, '');
+    const prefill = encodeURIComponent(
+      CONFIGURED_ACTUAL_GIFT.telegramPrefillMessage ||
+        CONFIGURED_ACTUAL_GIFT.whatsappPrefillMessage ||
+        "Hey Sayang ❤️ Here's the delivery address I'm comfortable using for my birthday surprise: "
+    );
+    const targetUrl = `https://t.me/${cleanUsername}?text=${prefill}`;
+
+    if (typeof window !== 'undefined') {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (
@@ -439,16 +449,13 @@ export const FinalGiftReveal: React.FC = () => {
                       </span>
                     </div>
 
-                    {/* Card Content & Embossed Gold Foil Lettering */}
+                    {/* Card Content & Embossed Gold Foil Monogram (No explicit spoilers or click hints) */}
                     <div className="flex flex-col pr-1">
-                      <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#D9AE50] font-semibold">
-                        P.S. Kept For You
+                      <span className="text-[10px] font-mono uppercase tracking-[0.26em] text-[#D9AE50] font-semibold">
+                        U ♥ S
                       </span>
-                      <span className="text-sm font-serif italic text-[#FFF9EA] group-hover:text-[#FDE68A] transition-colors drop-shadow-md">
-                        A quiet little note is resting here...
-                      </span>
-                      <span className="text-[10px] font-mono text-[#F8E6A0]/75 tracking-wide mt-0.5">
-                        Click the velvet card ✦
+                      <span className="text-xs font-serif italic text-[#FFF9EA]/90 group-hover:text-[#FDE68A] transition-colors drop-shadow-md">
+                        For Uci ♥
                       </span>
                     </div>
 
@@ -461,37 +468,6 @@ export const FinalGiftReveal: React.FC = () => {
                       />
                     </div>
                   </div>
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Tiny Golden Glimmer near the open gift box's lower compartment */}
-          <AnimatePresence>
-            {(phase === 'QUIET_MOMENT' || phase === 'POSTSCRIPT_REVEAL') && (
-              <motion.div
-                key="secret-glimmer-clue"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.7 }}
-                className="pointer-events-auto self-center lg:self-start mb-3"
-              >
-                <button
-                  type="button"
-                  onClick={handleRevealPostscriptNow}
-                  aria-label="Inspect the golden glimmer beneath the gift box"
-                  className="group relative flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#180810]/80 hover:bg-[#2A0D1B]/90 border border-[#FDE68A]/50 hover:border-[#FDE68A] shadow-[0_0_28px_rgba(253,230,138,0.45)] transition-all duration-300 cursor-pointer"
-                >
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FDE68A] opacity-85" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FDE68A]" />
-                  </span>
-                  <span className="text-xs font-serif italic text-[#FFF9EA] group-hover:text-[#FDE68A] transition-colors">
-                    {phase === 'POSTSCRIPT_REVEAL'
-                      ? 'A hidden compartment is opening beneath the box...'
-                      : 'Wait... something is glimmering beneath the box ✦'}
-                  </span>
                 </button>
               </motion.div>
             )}
@@ -722,6 +698,7 @@ export const FinalGiftReveal: React.FC = () => {
                   {CONFIGURED_ACTUAL_GIFT.populated ? (
                     <SmartImage
                       assetKey={CONFIGURED_ACTUAL_GIFT.imageAssetKey}
+                      src={CONFIGURED_ACTUAL_GIFT.photoPath}
                       alt={CONFIGURED_ACTUAL_GIFT.title}
                       className="w-full h-full object-cover"
                     />
@@ -747,8 +724,8 @@ export const FinalGiftReveal: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Delivery & Personal Note Callouts */}
-                <div className="p-3.5 rounded-xl bg-[#D9B77B]/10 border border-[#D9B77B]/35 flex flex-col gap-1.5">
+                {/* Delivery & Personal Note Callouts + Private Address Button */}
+                <div className="p-3.5 rounded-xl bg-[#D9B77B]/10 border border-[#D9B77B]/35 flex flex-col gap-2">
                   <div className="flex items-center gap-2 text-xs font-mono text-[#F8E6A0]">
                     <Package className="w-3.5 h-3.5 shrink-0 text-[#D9B77B]" />
                     <span>{CONFIGURED_ACTUAL_GIFT.deliveryOrRedemptionNote}</span>
@@ -756,6 +733,17 @@ export const FinalGiftReveal: React.FC = () => {
                   <p className="text-xs font-serif italic text-[#FFF9EA]/95 pl-5 border-l border-[#D9B77B]/45">
                     &ldquo;{CONFIGURED_ACTUAL_GIFT.personalNote}&rdquo;
                   </p>
+                  <button
+                    type="button"
+                    onClick={handleSendAddressOnTelegram}
+                    className="mt-1 w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#D9AE50] via-[#F8E6A0] to-[#D9AE50] text-[#3E2507] font-mono font-bold text-[11px] tracking-[0.16em] uppercase shadow-[0_4px_18px_rgba(217,174,80,0.4)] hover:brightness-105 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{CONFIGURED_ACTUAL_GIFT.addressButtonLabel || 'SEND MY ADDRESS TO SAYANG ON TELEGRAM'}</span>
+                  </button>
+                  <span className="text-[10px] font-mono text-[#F8E6A0]/70 text-center">
+                    {CONFIGURED_ACTUAL_GIFT.addressPrivacyNote}
+                  </span>
                 </div>
 
                 {/* Subtle replay & quiet moment controls */}
@@ -953,15 +941,6 @@ export const FinalGiftReveal: React.FC = () => {
               className="text-xs font-serif italic text-[#F8E6A0]/75 hover:text-[#FFF9EA] underline transition-colors cursor-pointer"
             >
               {showGiftOverlayInQuietMode ? 'Hide Gift Card' : 'View Your Birthday Gift Again'}
-            </button>
-          )}
-          {phase === 'QUIET_MOMENT' && (
-            <button
-              type="button"
-              onClick={handleRevealPostscriptNow}
-              className="text-xs font-serif italic text-[#D9B77B]/70 hover:text-[#FDE68A] transition-colors cursor-pointer"
-            >
-              ✦ Notice the golden glimmer...
             </button>
           )}
         </div>

@@ -21,6 +21,7 @@ import {
   LovePoem,
 } from '../config/finalLoveLetterContent';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
+import { musicController } from '../utils/musicController';
 import { CinematicDeclarationTitle } from '../components/typography/CinematicDeclarationTitle';
 
 type ExperiencePhase =
@@ -164,6 +165,24 @@ export const FinalLoveLetter: React.FC = () => {
   // Focus Reading Mode toggle
   const [isFocusReading, setIsFocusReading] = useState(false);
 
+  // One-time synchronization guard for the Final Poem outro track ("It's Been a Long, Long Time" / vintage jazz fallback)
+  const hasTriggeredOutroTrackRef = useRef(false);
+  const [outroAudioNotice, setOutroAudioNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    return musicController.subscribe((mState) => {
+      setOutroAudioNotice(mState.soundtrackUnavailableReason);
+    });
+  }, []);
+
+  // Trigger final poem outro track when entering the poem screen
+  useEffect(() => {
+    if ((phase === 'REVEALING' || phase === 'MAIN') && !hasTriggeredOutroTrackRef.current) {
+      hasTriggeredOutroTrackRef.current = true;
+      musicController.playFinalPoemOutroOnce();
+    }
+  }, [phase]);
+
   // Active poem reference
   const currentPoem: LovePoem | null = useMemo(() => {
     if (selectedPoemIndex === 'note' || FINAL_POEMS.length === 0) return null;
@@ -230,22 +249,16 @@ export const FinalLoveLetter: React.FC = () => {
   // Skip Intro Action directly to MAIN poems screen
   const handleSkipIntro = () => {
     setIsIntroSkipped(true);
+    hasTriggeredOutroTrackRef.current = true;
+    musicController.playFinalPoemOutroOnce();
     setPhase('MAIN');
-    try {
-      proceduralAudio.playStarBridgeChime();
-    } catch {
-      // Audio fallback
-    }
   };
 
   // Enter Main Universe (Fades in the last screen with poems and all)
   const handleEnterMain = () => {
+    hasTriggeredOutroTrackRef.current = true;
+    musicController.playFinalPoemOutroOnce();
     setPhase('REVEALING');
-    try {
-      proceduralAudio.playStarBridgeChime();
-    } catch {
-      // Audio fallback
-    }
     const timer = setTimeout(() => {
       setPhase('MAIN');
     }, 900);
@@ -254,6 +267,9 @@ export const FinalLoveLetter: React.FC = () => {
 
   // Replay from beginning of intro sequence
   const handleReplayIntro = () => {
+    hasTriggeredOutroTrackRef.current = false;
+    musicController.resetFinalPoemOutroGuard();
+    musicController.pause();
     setIsIntroSkipped(false);
     setIsLineFinished(false);
     setIntroStep(0);
@@ -263,6 +279,9 @@ export const FinalLoveLetter: React.FC = () => {
 
   // Replay only the "I Love You, Uci" live handwriting declaration
   const handleReplayDeclaration = () => {
+    hasTriggeredOutroTrackRef.current = false;
+    musicController.resetFinalPoemOutroGuard();
+    musicController.pause();
     setIsIntroSkipped(false);
     setWritingNonce((n) => n + 1);
     setPhase('DECLARATION');
@@ -827,6 +846,14 @@ export const FinalLoveLetter: React.FC = () => {
         <span className="text-[10px] sm:text-[11px] font-serif italic text-[#FFF9EA]/65 tracking-wider">
           NOT AN ENDING... JUST ANOTHER BEAUTIFUL BEGINNING. ♡
         </span>
+        {outroAudioNotice && (
+          <span
+            data-testid="final-poem-audio-fallback-indicator"
+            className="text-[9px] font-mono text-[#D9B77B]/75 px-3 py-0.5 rounded-full bg-black/40 border border-[#D9B77B]/25"
+          >
+            {outroAudioNotice}
+          </span>
+        )}
       </footer>
     </div>
   );

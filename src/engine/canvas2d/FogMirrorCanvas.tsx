@@ -1,7 +1,8 @@
 // src/engine/canvas2d/FogMirrorCanvas.tsx
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { useExperienceStore } from '../../store/useExperienceStore';
+import { STORY_DATA } from '../../config/storyContent';
 import { proceduralAudio } from '../audio/ProceduralAudio';
 
 interface FogMirrorCanvasProps {
@@ -11,14 +12,14 @@ interface FogMirrorCanvasProps {
 const COLS = 40;
 const ROWS = 25;
 
-// Perfectly spaced notes safely contained within the mirror glass
+// Perfectly spaced LDR notes safely contained within the mirror glass
 export const MIRROR_NOTES = [
   {
     id: 1,
     x: 30,
     y: 30,
-    headline: 'Stop looking so kissable right now... ♡',
-    subtext: 'Seriously, how am I supposed to focus when you look at me like that?',
+    headline: 'Even through a screen, you leave me breathless... ♡',
+    subtext: 'Seriously, how am I supposed to focus when your camera turns on?',
     accent: '♡',
   },
   {
@@ -26,31 +27,31 @@ export const MIRROR_NOTES = [
     x: 50,
     y: 48,
     lines: ['I still', 'get weak', 'for you... ♡'],
-    subtext: 'Every single time you bite your lip.',
+    subtext: 'Every single time I hear your voice on the line.',
     kiss: true,
   },
   {
     id: 3,
     x: 30,
     y: 70,
-    headline: 'Your neck + my lips = ♥',
-    subtext: 'My absolute favorite unfinished conversation.',
+    headline: 'Counting down to our first real hug ♥',
+    subtext: 'The day the screen between us finally disappears.',
     accent: '♥',
   },
   {
     id: 4,
     x: 70,
     y: 70,
-    headline: 'Come back to bed, cintaku... ✨',
-    subtext: "'5 more minutes' never meant just 5 minutes with you.",
+    headline: 'Stay on the call with me, cintaku... ✨',
+    subtext: "'Five more minutes' never meant just five minutes with you.",
     accent: '✨',
   },
   {
     id: 5,
     x: 70,
     y: 30,
-    headline: '100% Mine. Every inch. ♥',
-    subtext: 'Wipe the rest of the glass, baby... 💋',
+    headline: 'Worth every mile between us. ♥',
+    subtext: 'Still my favourite view on every late-night call... 💋',
     kiss: true,
   },
 ];
@@ -62,6 +63,7 @@ export const FogMirrorCanvas: React.FC<FogMirrorCanvasProps> = ({
   const isWiping = useRef(false);
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
   const grid = useRef<boolean[]>(new Array(COLS * ROWS).fill(false));
+  const [mirrorPhotoError, setMirrorPhotoError] = useState(false);
 
   const discoverMirrorNote = useExperienceStore((state) => state.discoverMirrorNote);
   const setMirrorClearedPercent = useExperienceStore((state) => state.setMirrorClearedPercent);
@@ -367,8 +369,20 @@ export const FogMirrorCanvas: React.FC<FogMirrorCanvasProps> = ({
 
   return (
     <div className="relative w-full h-full select-none">
-      {/* ─── LAYER 1: DARK REFLECTIVE ANTIQUE MIRROR GLASS & GLOWING SECRET MESSAGES ─── */}
+      {/* ─── LAYER 1: DARK REFLECTIVE ANTIQUE MIRROR GLASS, UCI PHOTO REFLECTION & GLOWING SECRET MESSAGES ─── */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#140804] via-[#241007] to-[#0E0502] p-6 sm:p-10 pointer-events-none overflow-hidden">
+        {/* Uci Mirror Reflection Photograph underneath the steamy glass (emerges as steam is wiped) */}
+        {!mirrorPhotoError && (
+          <img
+            src={STORY_DATA.photos.mirror.path}
+            alt={STORY_DATA.photos.mirror.alt}
+            loading="lazy"
+            onError={() => setMirrorPhotoError(true)}
+            style={{ objectPosition: STORY_DATA.photos.mirror.objectPosition || 'center 25%' }}
+            className="absolute inset-0 w-full h-full object-cover opacity-55 mix-blend-screen filter contrast-105 brightness-95 pointer-events-none"
+          />
+        )}
+
         {/* Soft Candlelight Caustic Glow & Room Depth Reflection */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_80%,rgba(245,158,11,0.22)_0%,rgba(113,61,69,0.12)_45%,transparent_75%)] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_35%,rgba(253,230,138,0.15)_0%,transparent_50%)] pointer-events-none" />

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Flame, AlertCircle } from 'lucide-react';
+import { ACT5_OVERHEAT_WARNING } from '../../config/act5Ingredients';
 
 interface TemperatureGaugeProps {
   temperature: number;
@@ -79,14 +80,14 @@ export const TemperatureGauge: React.FC<TemperatureGaugeProps> = ({
 
       {/* Comedic Overheating Romantic Alert Banner */}
       {isOverheated && (
-        <div className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#702B42]/85 border border-[#FDA4AF]/60 text-center shadow-[0_4px_25px_rgba(225,29,72,0.4)] backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#702B42]/90 border border-[#FDA4AF]/70 text-center shadow-[0_4px_25px_rgba(225,29,72,0.45)] backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-300">
           <AlertCircle className="w-4 h-4 text-[#FDA4AF] shrink-0" />
           <div className="flex flex-col text-left">
             <span className="text-[10px] sm:text-xs font-mono font-bold tracking-wider text-[#FFFDF5] uppercase">
-              OH NO… THIS IS GETTING DANGEROUSLY LOVELY.
+              {ACT5_OVERHEAT_WARNING}
             </span>
             <span className="text-[9px] sm:text-[10px] font-serif italic text-[#FDA4AF]">
-              Boyfriend's self-control has officially left the room. ♥
+              20% Sweetness • 20% Radiance • 20% Princess • 40% Bedroom Menace ♥
             </span>
           </div>
         </div>

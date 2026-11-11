@@ -89,13 +89,13 @@ export const Act2LittleThingsIKeep: React.FC = () => {
         </div>
 
         {/* Main Heading */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-serif italic text-[#4A3004] font-normal tracking-tight leading-tight mb-2 drop-shadow-[0_2px_16px_rgba(255,253,245,0.95)]">
-          Our Little Keepsakes
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-serif italic text-[#4A3004] font-normal tracking-tight leading-tight mb-2 drop-shadow-[0_2px_16px_rgba(255,253,245,0.95)]">
+          Four Little Things I Want You to Keep.
         </h2>
 
         {/* Supporting Message */}
         <p className="text-xs sm:text-sm md:text-base text-[#5A3B05]/90 font-serif italic max-w-xl mx-auto leading-relaxed mb-1 drop-shadow-sm">
-          Six little pieces of our story, saved across the distance.
+          Four little pieces of our story, saved across the distance.
         </p>
 
         {/* Interaction Instruction */}
@@ -107,15 +107,15 @@ export const Act2LittleThingsIKeep: React.FC = () => {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D9AE50]/60 bg-[#FFFDF5]/85 backdrop-blur-md shadow-[0_2px_10px_rgba(217,174,80,0.2)] text-xs font-mono text-[#7A5208] font-medium">
           <Sparkles className="w-3.5 h-3.5 text-[#C49226]" />
           <span>
-            Memories opened: {discoveredMemoryIds.length} / {CONFIGURED_MEMORIES.length}
+            Keepsakes opened: {discoveredMemoryIds.length} / {CONFIGURED_MEMORIES.length}
           </span>
         </div>
       </div>
 
-      {/* ─── SIX KEEPSAKE CARDS GALLERY (3 Columns x 2 Rows on Desktop) ─── */}
-      <div className="relative z-20 w-full max-w-5xl mx-auto my-auto py-4 px-2 sm:px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 lg:gap-6">
-          {CONFIGURED_MEMORIES.slice(0, 6).map((mem) => {
+      {/* ─── FOUR KEEPSAKE CARDS GALLERY ─── */}
+      <div className="relative z-20 w-full max-w-6xl mx-auto my-auto py-4 px-2 sm:px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+          {CONFIGURED_MEMORIES.map((mem) => {
             const isFound = discoveredMemoryIds.includes(mem.id);
             return (
               <button
@@ -126,18 +126,19 @@ export const Act2LittleThingsIKeep: React.FC = () => {
                     ? 'border-[#D9AE50]/75 shadow-[0_4px_22px_rgba(217,174,80,0.28)] hover:shadow-[0_8px_32px_rgba(217,174,80,0.45)] hover:-translate-y-1'
                     : 'border-[#D9AE50]/40 shadow-[0_4px_16px_rgba(217,174,80,0.15)] hover:border-[#D9AE50]/70 hover:shadow-[0_8px_28px_rgba(217,174,80,0.3)] hover:-translate-y-1'
                 }`}
-                aria-label={`Open memory: ${mem.title}`}
+                aria-label={`Open keepsake: ${mem.title}`}
               >
                 {/* Decorative Washi Tape Strip at top */}
                 <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 bg-[#F8E6A0]/85 border border-[#D9AE50]/40 shadow-xs transform -rotate-1 rounded-xs pointer-events-none z-10" />
 
                 {/* Photograph Frame Area */}
-                <div className="w-full rounded-xl overflow-hidden border border-[#D9AE50]/25 shadow-inner mb-3 bg-[#FFF9EA]">
+                <div className="w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[#D9AE50]/25 shadow-inner mb-3 bg-[#FFF9EA]">
                   <SmartImage
                     assetKey={mem.imageAssetKey}
+                    src={mem.photoPath}
                     alt={mem.imageAltText || mem.title}
-                    aspectRatio="aspect-[16/11]"
-                    className="w-full object-cover"
+                    aspectRatio="aspect-[4/5]"
+                    className="w-full h-full object-cover"
                     theme="warm"
                   />
                 </div>
@@ -190,14 +191,14 @@ export const Act2LittleThingsIKeep: React.FC = () => {
       {/* ─── BOTTOM CONTROLS & CONTINUATION ─── */}
       <div className="relative z-20 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-5xl mx-auto w-full pt-4 pb-2">
         {/* Bottom Hint */}
-        <InteractionHint hint="Choose a little memory to open it" icon="click" />
+        <InteractionHint hint="Choose a little keepsake to open it" icon="click" />
 
         {/* Continue Button to Act III */}
         <button
           onClick={handleProceedToAct3}
           className="flex items-center justify-center gap-3 px-8 py-3 rounded-full border border-[#D9AE50] bg-gradient-to-r from-[#F8E6A0]/85 via-[#FFF9EA]/95 to-[#F8E6A0]/85 hover:from-[#F8E6A0] hover:to-[#F8E6A0] shadow-[0_0_20px_rgba(217,174,80,0.35)] hover:shadow-[0_0_30px_rgba(217,174,80,0.6)] text-[#5A3B05] font-mono font-bold text-xs tracking-[0.22em] uppercase transition-all duration-300 cursor-pointer backdrop-blur-md group"
         >
-          <span>THERE'S MORE I WANT TO SHOW YOU</span>
+          <span>THERE&apos;S MORE I WANT TO SHOW YOU</span>
           <ArrowRight className="w-4 h-4 text-[#8B5E0A] group-hover:translate-x-1.5 transition-transform" />
         </button>
       </div>
@@ -219,7 +220,7 @@ export const Act2LittleThingsIKeep: React.FC = () => {
             <div className="flex items-start justify-between border-b border-[#D9AE50]/25 pb-3">
               <div>
                 <span className="inline-block px-3 py-1 rounded-full border border-[#D9AE50]/50 bg-[#F8E6A0]/40 text-[10px] font-mono uppercase tracking-[0.25em] text-[#8B5E0A] font-bold mb-1.5">
-                  {activeMemory.categoryBadge || 'MEMORY'}
+                  {activeMemory.categoryBadge || 'KEEPSAKE'}
                 </span>
                 <h3
                   id="memory-dialog-title"
@@ -238,7 +239,7 @@ export const Act2LittleThingsIKeep: React.FC = () => {
               <button
                 onClick={handleCloseModal}
                 className="p-1.5 rounded-full hover:bg-[#F8E6A0]/50 text-[#8B5E0A] transition-colors cursor-pointer"
-                aria-label="Close memory"
+                aria-label="Close keepsake"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -247,13 +248,16 @@ export const Act2LittleThingsIKeep: React.FC = () => {
             {/* Large Polaroid Photograph Frame with Top Tape */}
             <div className="relative p-2.5 bg-[#FFF9EA] rounded-2xl border border-[#D9AE50]/35 shadow-sm">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#F8E6A0]/90 border border-[#D9AE50]/40 shadow-xs transform -rotate-1 rounded-xs pointer-events-none z-10" />
-              <SmartImage
-                assetKey={activeMemory.imageAssetKey}
-                alt={activeMemory.imageAltText || activeMemory.title}
-                aspectRatio="aspect-[16/10]"
-                className="w-full object-cover rounded-xl"
-                theme="warm"
-              />
+              <div className="w-full h-56 sm:h-64 rounded-xl overflow-hidden">
+                <SmartImage
+                  assetKey={activeMemory.imageAssetKey}
+                  src={activeMemory.photoPath}
+                  alt={activeMemory.imageAltText || activeMemory.title}
+                  aspectRatio="aspect-[16/10]"
+                  className="w-full h-full object-cover rounded-xl"
+                  theme="warm"
+                />
+              </div>
             </div>
 
             {/* Story Text Body */}
@@ -261,20 +265,35 @@ export const Act2LittleThingsIKeep: React.FC = () => {
               {activeMemory.storyBody}
             </p>
 
+            {/* Optional Bullet Items (e.g. Keepsake 03 Midnight Rituals) */}
+            {activeMemory.bulletItems && activeMemory.bulletItems.length > 0 && (
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 px-3 py-2.5 rounded-xl bg-[#FFF9EA]/90 border border-[#D9AE50]/35 text-xs sm:text-sm font-serif text-[#5A3B05]">
+                {activeMemory.bulletItems.map((bullet, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span className="text-[#D9AE50]">✦</span>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             {/* Optional Secondary Handwritten Whisper */}
             {activeMemory.secondaryWhisper && (
               <div className="p-3.5 rounded-xl bg-[#FFF9EA] border-l-4 border-[#D9AE50] text-xs sm:text-sm font-serif italic text-[#6B4706] leading-relaxed shadow-xs">
-                "{activeMemory.secondaryWhisper}" <span className="text-[#E11D48] not-italic">♡</span>
+                &ldquo;{activeMemory.secondaryWhisper}&rdquo; <span className="text-[#E11D48] not-italic">♡</span>
               </div>
             )}
 
-            {/* Optional Voice Recording Player */}
-            {activeMemory.audioAssetKey && (
+            {/* Optional Voice Recording Player (/audio/my-voice-note.mp3) */}
+            {(activeMemory.voiceNoteSrc || activeMemory.audioAssetKey) && (
               <div className="w-full pt-1">
                 <VoicePlayerPill
-                  audioPath={`/media/audio/voice/${activeMemory.audioAssetKey}.mp3`}
+                  audioPath={
+                    activeMemory.voiceNoteSrc ||
+                    `/media/audio/voice/${activeMemory.audioAssetKey}.mp3`
+                  }
                   transcript={activeMemory.storyBody}
-                  title="A Little Something in My Voice"
+                  title="Listen to My Voice Note 🎙️"
                   autoPlay={false}
                 />
               </div>

@@ -106,6 +106,40 @@ test.describe('Act VIII: The Royal Gift & The Hidden Postscript — Master Verif
     expect(openProbes.untied).toBe(1.0);
     expect(openProbes.angle).toBe(112);
 
+    // Verify it stays halted on GIFT_REVEALED without auto-advancing
+    await page.waitForTimeout(1000);
+    const activePhase = await page.evaluate(() => (window as any).__UCI_TEST_PROBES__?.giftRevealPhase);
+    expect(activePhase).toBe('GIFT_REVEALED');
+
+    // Verify 360° manual rotation works by dragging the 3D viewport region
+    const dragArea = page.getByRole('region', { name: /360 degree interactive view of the royal gift box/i });
+    await expect(dragArea).toBeVisible();
+
+    const initialRotY = await page.evaluate(() => (window as any).__UCI_TEST_PROBES__?.giftBoxRotationY ?? 0.32);
+    const dragBox = await dragArea.boundingBox();
+    if (dragBox) {
+      await page.mouse.move(dragBox.x + dragBox.width / 2, dragBox.y + dragBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(dragBox.x + dragBox.width / 2 + 100, dragBox.y + dragBox.height / 2 + 30);
+      await page.mouse.up();
+    }
+    const updatedRotY = await page.evaluate(() => (window as any).__UCI_TEST_PROBES__?.giftBoxRotationY);
+    expect(updatedRotY).not.toBe(initialRotY);
+
+    // Verify angle presets (e.g. Front, 30°, Reset)
+    await page.getByRole('button', { name: 'Front' }).click();
+    const frontRotY = await page.evaluate(() => (window as any).__UCI_TEST_PROBES__?.giftBoxRotationY);
+    expect(frontRotY).toBe(0);
+
+    await page.getByRole('button', { name: 'Reset' }).click();
+    const resetRotY = await page.evaluate(() => (window as any).__UCI_TEST_PROBES__?.giftBoxRotationY);
+    expect(resetRotY).toBeCloseTo(0.32, 2);
+
+    // Verify the tactile velvet card is resting on the table
+    const velvetCard = page.getByRole('button', { name: /A little velvet card resting on the table/i });
+    await expect(velvetCard).toBeVisible();
+    await expect(page.getByText('P.S. Kept For You')).toBeVisible();
+
     await page.screenshot({
       path: path.join(screenshotDir, '03_gift_opening_and_real_gift_1920x1080.png'),
       fullPage: true,
@@ -115,37 +149,21 @@ test.describe('Act VIII: The Royal Gift & The Hidden Postscript — Master Verif
     await page.getByRole('button', { name: 'Replay Gift Reveal' }).click();
     await expect(page.getByRole('button', { name: /I CAN'T WAIT — OPEN IT!/i })).toBeVisible();
 
-    // Open again to proceed into the Quiet Moment
+    // Open again to proceed to the velvet card trigger
     await page.getByRole('button', { name: /I CAN'T WAIT — OPEN IT!/i }).click();
     await expect(page.getByRole('heading', { name: 'Your Real Birthday Gift Awaits' })).toBeVisible({
       timeout: 5000,
     });
 
-    // 8. Transition into The Quiet Moment (Apparent Finale)
-    await page.getByRole('button', { name: /Let the moment settle/i }).click();
+    // 8. The boyfriend calls her and tells her to find and click the velvet card
+    await expect(velvetCard).toBeVisible();
+    await velvetCard.click();
 
-    await expect(
-      page.getByText('Thank you for making ordinary days feel a little more beautiful.')
-    ).toBeVisible();
-    await expect(
-      page.getByText("And for being someone I'd choose, in every little moment. ♥")
-    ).toBeVisible();
+    const clickedProbe = await page.evaluate(() => (window as any).__UCI_TEST_PROBES__?.velvetCardClicked);
+    expect(clickedProbe).toBe(true);
 
-    // Verify golden glimmer clue appears near the open gift box
-    const glimmerBtn = page.getByRole('button', {
-      name: /Inspect the golden glimmer beneath the gift box/i,
-    });
-    await expect(glimmerBtn).toBeVisible();
-
-    await page.screenshot({
-      path: path.join(screenshotDir, '04_quiet_closing_moment_1920x1080.png'),
-      fullPage: true,
-    });
-
-    // 9. Wait for or trigger the Hidden Postscript Note reveal
-    await glimmerBtn.click();
-
-    await expect(page.getByText('P.S. — ONE LAST THING')).toBeVisible({ timeout: 5000 });
+    // 9. Hidden Postscript Note reveals with exact required copy
+    await expect(page.getByText('P.S. — ONE LAST THING')).toBeVisible({ timeout: 6000 });
     await expect(
       page.getByRole('heading', { name: 'You thought that was the whole picture?' })
     ).toBeVisible();

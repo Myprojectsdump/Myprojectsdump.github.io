@@ -1,9 +1,10 @@
 // src/acts/act7/cake/CakeBlowControls.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Wind, Mic, Sparkles, ArrowRight, RotateCcw } from 'lucide-react';
 import { useExperienceStore } from '../../../store/useExperienceStore';
 import { proceduralAudio } from '../../../engine/audio/ProceduralAudio';
+import { musicController } from '../../../utils/musicController';
 import { MicrophoneAnalyzer, MicStatus } from '../../../engine/audio/MicrophoneAnalyzer';
 
 export const CakeBlowControls: React.FC = () => {
@@ -18,18 +19,77 @@ export const CakeBlowControls: React.FC = () => {
   const [micStatus, setMicStatus] = useState<MicStatus>('idle');
   const micAnalyzerRef = useRef<MicrophoneAnalyzer | null>(null);
   const blowTimerRef = useRef<number | null>(null);
+  const hasExtinguishedRef = useRef<boolean>(isExtinguished);
+
+  useEffect(() => {
+    hasExtinguishedRef.current = isExtinguished;
+  }, [isExtinguished]);
 
   // Teardown mic analyzer and timers on unmount
   useEffect(() => {
     return () => {
       if (micAnalyzerRef.current) {
         micAnalyzerRef.current.dispose();
+        micAnalyzerRef.current = null;
       }
       if (blowTimerRef.current) {
         clearInterval(blowTimerRef.current);
+        blowTimerRef.current = null;
       }
     };
   }, []);
+
+  const handleCandleExtinguish = useCallback(() => {
+    if (hasExtinguishedRef.current || isExtinguished) return;
+    hasExtinguishedRef.current = true;
+
+    if (blowTimerRef.current) {
+      clearInterval(blowTimerRef.current);
+      blowTimerRef.current = null;
+    }
+
+    if (micAnalyzerRef.current) {
+      micAnalyzerRef.current.dispose();
+      micAnalyzerRef.current = null;
+      setMicStatus('extinguished');
+    }
+
+    extinguishCandle();
+    musicController.playBirthdayCandleSequenceOnce();
+  }, [extinguishCandle, isExtinguished]);
+
+  const handleStartBlowHold = useCallback(() => {
+    if (hasExtinguishedRef.current || isExtinguished || currentStep < 6) return;
+    if (blowTimerRef.current) {
+      clearInterval(blowTimerRef.current);
+      blowTimerRef.current = null;
+    }
+
+    blowTimerRef.current = window.setInterval(() => {
+      setBlowProgress((prev) => {
+        const next = prev + 0.1;
+        if (next >= 1.6) {
+          if (blowTimerRef.current) {
+            clearInterval(blowTimerRef.current);
+            blowTimerRef.current = null;
+          }
+          handleCandleExtinguish();
+          return 1.6;
+        }
+        return next;
+      });
+    }, 100);
+  }, [currentStep, handleCandleExtinguish, isExtinguished]);
+
+  const handleStopBlowHold = useCallback(() => {
+    if (blowTimerRef.current) {
+      clearInterval(blowTimerRef.current);
+      blowTimerRef.current = null;
+    }
+    if (!hasExtinguishedRef.current && !isExtinguished) {
+      setBlowProgress(0);
+    }
+  }, [isExtinguished]);
 
   // Keyboard Spacebar hold support
   useEffect(() => {
@@ -51,54 +111,23 @@ export const CakeBlowControls: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isExtinguished, currentStep]);
-
-  const handleCandleExtinguish = () => {
-    if (isExtinguished) return;
-    extinguishCandle();
-    proceduralAudio.playBirthdayMusicBoxMelody();
-
-    if (micAnalyzerRef.current) {
-      micAnalyzerRef.current.dispose();
-      setMicStatus('extinguished');
-    }
-  };
-
-  const handleStartBlowHold = () => {
-    if (isExtinguished) return;
-    blowTimerRef.current = window.setInterval(() => {
-      setBlowProgress((prev) => {
-        const next = prev + 0.1;
-        if (next >= 1.6) {
-          if (blowTimerRef.current) {
-            clearInterval(blowTimerRef.current);
-            blowTimerRef.current = null;
-          }
-          handleCandleExtinguish();
-          return 1.6;
-        }
-        return next;
-      });
-    }, 100);
-  };
-
-  const handleStopBlowHold = () => {
-    if (blowTimerRef.current) {
-      clearInterval(blowTimerRef.current);
-      blowTimerRef.current = null;
-    }
-    if (!isExtinguished) {
-      setBlowProgress(0);
-    }
-  };
+  }, [isExtinguished, currentStep, handleStartBlowHold, handleStopBlowHold]);
 
   const handleToggleMicrophone = async () => {
+    if (hasExtinguishedRef.current || isExtinguished) return;
+
     if (micStatus === 'listening') {
       if (micAnalyzerRef.current) {
         micAnalyzerRef.current.dispose();
+        micAnalyzerRef.current = null;
       }
       setMicStatus('idle');
       return;
+    }
+
+    if (micAnalyzerRef.current) {
+      micAnalyzerRef.current.dispose();
+      micAnalyzerRef.current = null;
     }
 
     const analyzer = new MicrophoneAnalyzer();
@@ -116,6 +145,31 @@ export const CakeBlowControls: React.FC = () => {
     );
   };
 
+  const handleRelightCandle = () => {
+    // 1. Stop any active microphone session
+    if (micAnalyzerRef.current) {
+      micAnalyzerRef.current.dispose();
+      micAnalyzerRef.current = null;
+    }
+    setMicStatus('idle');
+
+    // 2. Clear any pending hold timers or intervals
+    if (blowTimerRef.current) {
+      clearInterval(blowTimerRef.current);
+      blowTimerRef.current = null;
+    }
+
+    // 3. Stop any active birthday melody so the next extinguish plays cleanly once
+    proceduralAudio.stopBirthdayMelody();
+
+    // 4. Reset breath meter & local reference guard
+    setBlowProgress(0);
+    hasExtinguishedRef.current = false;
+
+    // 5. Restore candle flame in store without erasing letter/lantern/wish/VIP state
+    relightCandle();
+  };
+
   const progressFraction = Math.min(blowProgress / 1.6, 1);
   const strokeDashoffset = 283 * (1 - progressFraction);
 
@@ -128,12 +182,13 @@ export const CakeBlowControls: React.FC = () => {
       <div className="flex items-center p-0.5 rounded-full bg-black/40 border border-[#D9AE50]/25 w-full">
         <button
           type="button"
+          disabled={isExtinguished}
           onClick={() => setBlowMode('hold')}
           className={`flex-1 flex items-center justify-center gap-1 py-1 rounded-full text-xs font-mono transition-all ${
             blowMode === 'hold'
               ? 'bg-[#D9AE50] text-[#140A00] font-bold shadow-[0_2px_8px_rgba(217,174,80,0.3)]'
               : 'text-[#FFF9EA]/65 hover:text-[#FFF9EA]'
-          }`}
+          } ${isExtinguished ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           <Wind className="w-3 h-3" />
           <span>Hold & Blow</span>
@@ -141,9 +196,11 @@ export const CakeBlowControls: React.FC = () => {
 
         <button
           type="button"
+          disabled={isExtinguished}
           onClick={() => {
+            if (isExtinguished) return;
             setBlowMode('mic');
-            if (micStatus === 'idle') {
+            if (micStatus === 'idle' || micStatus === 'extinguished') {
               handleToggleMicrophone();
             }
           }}
@@ -151,7 +208,7 @@ export const CakeBlowControls: React.FC = () => {
             blowMode === 'mic'
               ? 'bg-[#D9AE50] text-[#140A00] font-bold shadow-[0_2px_8px_rgba(217,174,80,0.3)]'
               : 'text-[#FFF9EA]/65 hover:text-[#FFF9EA]'
-          }`}
+          } ${isExtinguished ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           <Mic className="w-3 h-3" />
           <span>Microphone</span>
@@ -244,11 +301,11 @@ export const CakeBlowControls: React.FC = () => {
 
       {/* Action CTA when extinguished */}
       {isExtinguished ? (
-        <div className="w-full space-y-1.5 pt-1.5 border-t border-[#D9AE50]/20 animate-in fade-in duration-300">
+        <div className="w-full space-y-2 pt-1.5 border-t border-[#D9AE50]/20 animate-in fade-in duration-300">
           <button
             type="button"
             onClick={() => setAct7SubStage('lantern')}
-            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-full bg-gradient-to-r from-[#D9AE50] to-[#E9B85B] text-[#140A00] font-mono font-bold text-xs tracking-wider uppercase hover:brightness-110 transition-all shadow-[0_3px_12px_rgba(217,174,80,0.4)]"
+            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-full bg-gradient-to-r from-[#D9AE50] to-[#E9B85B] text-[#140A00] font-mono font-bold text-xs tracking-wider uppercase hover:brightness-110 transition-all shadow-[0_3px_12px_rgba(217,174,80,0.4)] cursor-pointer"
           >
             <span>Continue to Sky Lantern ✨</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -256,11 +313,11 @@ export const CakeBlowControls: React.FC = () => {
 
           <button
             type="button"
-            onClick={relightCandle}
-            className="flex items-center justify-center gap-1 text-[10px] font-mono text-[#FFF9EA]/50 hover:text-[#FFF9EA] mx-auto transition-colors"
+            onClick={handleRelightCandle}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-full border border-[#D9AE50]/45 bg-[#1A0C06]/80 hover:bg-[#1A0C06] text-[10px] font-mono tracking-wider uppercase text-[#F8E6A0] hover:text-[#FFF9EA] transition-all cursor-pointer shadow-sm"
           >
-            <RotateCcw className="w-2.5 h-2.5" />
-            <span>Light Candle Again</span>
+            <RotateCcw className="w-3 h-3 text-[#D9AE50]" />
+            <span>RELIGHT CANDLE ✨</span>
           </button>
         </div>
       ) : (

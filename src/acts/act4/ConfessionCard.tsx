@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { ChevronLeft, ChevronRight, Play, Pause, Repeat } from 'lucide-react';
+import { VinylConfessionCardItem } from '../../types/story';
 
 interface ConfessionCardProps {
   vinylSide: 'daylight' | 'afterHours';
   confessionIndex: number;
+  cards?: VinylConfessionCardItem[];
   confessions: string[];
   isPlaying: boolean;
   onPrev: () => void;
@@ -16,21 +18,28 @@ interface ConfessionCardProps {
 export const ConfessionCard: React.FC<ConfessionCardProps> = ({
   vinylSide,
   confessionIndex,
+  cards,
   confessions,
   isPlaying,
   onPrev,
   onNext,
   onTogglePlay,
 }) => {
-  const currentConfession = confessions[confessionIndex] || '';
+  const activeCard = cards?.[confessionIndex];
+  const currentTitle = activeCard?.title || `TRACK 0${confessionIndex + 1}`;
+  const currentMessage = activeCard?.message || confessions[confessionIndex] || '';
   const isDaylight = vinylSide === 'daylight';
 
   return (
     <div
-      className={`relative w-full max-w-lg p-6 sm:p-8 rounded-3xl border transition-all duration-500 shadow-2xl backdrop-blur-md select-none ${
+      key={`${vinylSide}-${confessionIndex}`}
+      style={{
+        backgroundColor: isDaylight ? 'rgba(255, 249, 234, 0.95)' : 'rgba(255, 245, 237, 0.95)',
+      }}
+      className={`relative w-full max-w-lg p-6 sm:p-8 rounded-3xl border transition-all duration-500 shadow-2xl backdrop-blur-md select-none animate-in fade-in zoom-in-95 ${
         isDaylight
-          ? 'bg-[#FFF9EA]/95 border-[#D9AE50]/70 shadow-[0_16px_50px_rgba(110,75,10,0.3)] text-[#3E2507]'
-          : 'bg-[#FFF5ED]/95 border-[#E11D48]/60 shadow-[0_16px_50px_rgba(120,20,40,0.4)] text-[#3E1018]'
+          ? 'bg-[#FFF9EA]/95 border-[#D9AE50]/80 shadow-[0_16px_50px_rgba(110,75,10,0.3)] text-[#3E2507]'
+          : 'bg-[#FFF5ED]/95 border-[#E11D48]/75 ring-1 ring-[#D9AE50]/50 shadow-[0_20px_58px_rgba(160,20,45,0.48)] text-[#3E1018]'
       }`}
     >
       {/* Subtle Antique Stationery Watermark Monogram */}
@@ -38,11 +47,18 @@ export const ConfessionCard: React.FC<ConfessionCardProps> = ({
         U ♥ S
       </div>
 
-      {/* Track Ordinal Header */}
-      <div className="text-center pb-2 border-b border-[#D9AE50]/30 mb-4">
-        <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase font-bold text-[#8B5E0A]">
+      {/* Track Ordinal & Card Title Header */}
+      <div className="text-center pb-2.5 border-b border-[#D9AE50]/30 mb-4">
+        <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase font-bold text-[#8B5E0A] block">
           TRACK 0{confessionIndex + 1} / 04
         </span>
+        <h3
+          className={`text-xs sm:text-sm font-mono tracking-[0.18em] uppercase font-bold mt-1 ${
+            isDaylight ? 'text-[#5A3B05]' : 'text-[#9F1239]'
+          }`}
+        >
+          {currentTitle}
+        </h3>
       </div>
 
       {/* Main Confession Quote with Carousel Arrows */}
@@ -63,7 +79,7 @@ export const ConfessionCard: React.FC<ConfessionCardProps> = ({
         {/* Confession Quote Text */}
         <div className="flex-1 px-3 sm:px-5 text-center flex items-center justify-center">
           <p className="font-serif italic text-base sm:text-lg md:text-[21px] leading-relaxed tracking-normal font-normal">
-            "{currentConfession}"
+            &ldquo;{currentMessage}&rdquo;
           </p>
         </div>
 
@@ -115,7 +131,9 @@ export const ConfessionCard: React.FC<ConfessionCardProps> = ({
                 style={{
                   height: isPlaying ? `${height}px` : '4px',
                   transition: 'height 0.25s ease',
-                  animation: isPlaying ? `waveformPulse 0.8s ease-in-out infinite alternate ${idx * 0.05}s` : 'none',
+                  animation: isPlaying
+                    ? `waveformPulse 0.8s ease-in-out infinite alternate ${idx * 0.05}s`
+                    : 'none',
                 }}
                 className={`w-1 rounded-full ${
                   isDaylight ? 'bg-[#D9AE50]' : 'bg-[#E11D48]'
@@ -125,9 +143,9 @@ export const ConfessionCard: React.FC<ConfessionCardProps> = ({
           )}
         </div>
 
-        {/* Playback Timer Display */}
-        <span className="text-[11px] font-mono font-medium tracking-wider text-[#6B4706] shrink-0">
-          {isPlaying ? '1:24 / 3:56' : '0:00 / 3:56'}
+        {/* Playback Track Label */}
+        <span className="text-[10px] font-mono font-medium tracking-wider text-[#6B4706] shrink-0">
+          {isDaylight ? "Day Dreamin' with U" : 'Romantic 01'}
         </span>
 
         {/* Loop Icon */}

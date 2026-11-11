@@ -1,6 +1,7 @@
 // src/acts/act4/ConstellationMap.tsx
 
 import React from 'react';
+import { Sparkles } from 'lucide-react';
 import { useExperienceStore } from '../../store/useExperienceStore';
 import { STORY_DATA } from '../../config/storyContent';
 import { CONSTELLATION_LAYOUT, CONSTELLATION_HEART_PATH } from '../../config/act4ConstellationLayout';
@@ -17,12 +18,29 @@ export const ConstellationMap: React.FC = () => {
   const starNodes = STORY_DATA.constellationNodes;
   const activeNode = starNodes.find((n) => n.id === activeStarId);
   const activeLayout = activeStarId ? CONSTELLATION_LAYOUT[activeStarId] : null;
+  const allDiscovered = discoveredStarIds.length >= starNodes.length;
 
   const handleStarSelect = (id: string) => {
+    const targetNode = starNodes.find((n) => n.id === id);
+
+    // Stronger haptic feedback on spicy nodes (nodes 3-6)
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate(targetNode?.category === 'spicy' ? [35, 25, 50] : 18);
+      } catch (_) {}
+    }
+
     if (!discoveredStarIds.includes(id)) {
+      const willCompleteAll = discoveredStarIds.length + 1 >= starNodes.length;
       discoverStar(id);
       const starIndex = starNodes.findIndex((n) => n.id === id);
       proceduralAudio.playConstellationStarTone(starIndex >= 0 ? starIndex : 0);
+
+      if (willCompleteAll) {
+        setTimeout(() => {
+          proceduralAudio.playSupernovaCascade();
+        }, 320);
+      }
     }
     setActiveStar(id);
   };
@@ -44,7 +62,15 @@ export const ConstellationMap: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto flex items-center justify-center my-auto select-none py-2">
+    <div className="relative w-full max-w-5xl mx-auto flex flex-col items-center justify-center my-auto select-none py-2">
+      {/* All 8 Stars Illuminated Celebration Banner */}
+      {allDiscovered && (
+        <div className="mb-2 inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#FFF9EA]/15 border border-[#F8E6A0]/60 text-[11px] font-serif italic text-[#FFF9EA] shadow-[0_0_24px_rgba(253,230,138,0.45)] animate-in fade-in duration-500">
+          <Sparkles className="w-3.5 h-3.5 text-[#FDE68A] animate-spin" />
+          <span>Every star in your constellation is shining, cintaku ♥</span>
+        </div>
+      )}
+
       {/* Constellation Diagram Container */}
       <div className="relative w-full aspect-[800/420] max-h-[520px] flex items-center justify-center">
         {/* SVG Constellation Connection Lines & Starlight Glow */}
@@ -69,10 +95,10 @@ export const ConstellationMap: React.FC = () => {
           <g transform="translate(400, 210) scale(0.65)" opacity="0.85">
             <path
               d="M 0,25 C -55,-25 -85,-75 0,-130 C 85,-75 55,-25 0,25 Z"
-              fill="none"
+              fill={allDiscovered ? 'rgba(253, 230, 138, 0.12)' : 'none'}
               stroke="#FDE68A"
-              strokeWidth="2.5"
-              strokeDasharray="4 8"
+              strokeWidth={allDiscovered ? '3.2' : '2.5'}
+              strokeDasharray={allDiscovered ? 'none' : '4 8'}
               filter="url(#starlightGlow)"
               className="animate-pulse"
             />
@@ -83,7 +109,7 @@ export const ConstellationMap: React.FC = () => {
             d={CONSTELLATION_HEART_PATH}
             fill="none"
             stroke="url(#constellationGold)"
-            strokeWidth="2.4"
+            strokeWidth={allDiscovered ? '3.2' : '2.4'}
             strokeLinecap="round"
             strokeLinejoin="round"
             className="filter drop-shadow-[0_0_12px_rgba(253,230,138,0.85)]"

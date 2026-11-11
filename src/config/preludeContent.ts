@@ -25,7 +25,7 @@ export const PRELUDE_CONTENT = {
     skip: 'SKIP INTRO →',
   },
   aria: {
-    envelopeLabel: "Invitation from your boyfriend for Uci's birthday. Press Enter or click to open the wax seal.",
+    envelopeLabel: "Invitation from Sayang for Uci's birthday. Press Enter or click to open the wax seal.",
     openedAnnouncement: 'The wax seal cracks open and the burgundy ribbon slips away. An unfolded letter rises from the envelope.',
     transitionAnnouncement: 'The letter dissolves into golden starlight as you enter the universe.',
   },

@@ -7,7 +7,8 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import { ScrollDirector } from '../engine/motion/ScrollDirector';
 import { VoicePlayerPill } from '../components/media/VoicePlayerPill';
-import { OPENING_VOICE_TRANSCRIPT } from '../config/storyContent';
+import { SmartImage } from '../components/media/SmartImage';
+import { OPENING_VOICE_TRANSCRIPT, STORY_DATA } from '../config/storyContent';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
 
 export const Act1TwoCountriesOneSky: React.FC = () => {
@@ -317,14 +318,29 @@ export const Act1TwoCountriesOneSky: React.FC = () => {
                 transition={{ duration: 0.7, ease: 'easeOut' }}
                 className="flex flex-col items-center gap-3.5 max-w-lg w-full pointer-events-auto"
               >
-                {/* Romantic Post-Connection Message */}
-                <p className="font-serif italic text-xl sm:text-2xl text-[#4A3004] font-medium text-center drop-shadow-[0_2px_12px_rgba(255,255,255,0.8)]">
-                  No distance could make you feel far away. <span className="text-[#E11D48]">♥</span>
-                </p>
+                {/* Cosmic Portrait Locket & Post-Connection Message */}
+                <div className="flex items-center gap-3.5 px-4 py-2.5 rounded-2xl bg-[#FFFDF5]/85 border border-[#D9AE50]/65 shadow-[0_8px_28px_rgba(139,94,10,0.2)] backdrop-blur-md">
+                  <div className="w-12 h-14 sm:w-14 sm:h-16 rounded-xl overflow-hidden border border-[#D9AE50]/60 shrink-0 shadow-sm bg-[#FFF9EA]">
+                    <SmartImage
+                      assetKey="opening-hero-portrait"
+                      src={STORY_DATA.photos.portrait.path}
+                      alt={STORY_DATA.photos.portrait.alt}
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-[#8B5E0A] font-bold">
+                      COSMIC PORTRAIT // MY ORBIT
+                    </span>
+                    <p className="font-serif italic text-base sm:text-lg text-[#4A3004] font-medium leading-snug">
+                      No distance could make you feel far away. <span className="text-[#E11D48]">♥</span>
+                    </p>
+                  </div>
+                </div>
 
                 {/* Voice Player Pill */}
                 <VoicePlayerPill
-                  audioPath="/media/audio/voice/01-opening-voice.mp3"
+                  audioPath="/audio/my-voice-note.mp3"
                   transcript={OPENING_VOICE_TRANSCRIPT}
                   title="I Have Something to Tell You ❤️"
                   autoPlay={false}

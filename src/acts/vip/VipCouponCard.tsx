@@ -187,6 +187,13 @@ export const VipCouponCard: React.FC<VipCouponCardProps> = ({
   tierType,
 }) => {
   const isSweet = tierType === 'sweet';
+  const [burstActive, setBurstActive] = React.useState(false);
+
+  const handleRedeemClick = () => {
+    setBurstActive(true);
+    onRedeem();
+    window.setTimeout(() => setBurstActive(false), 1200);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -280,23 +287,34 @@ export const VipCouponCard: React.FC<VipCouponCardProps> = ({
         {/* =================================================================== */}
         <div className="relative z-10 flex flex-col justify-between h-full pl-13 sm:pl-15 pr-11 sm:pr-13 pt-3">
           {/* Top Line: Golden Monospace Code Badge */}
-          <div className="flex items-center gap-2">
-            <span
-              className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-widest border shadow-xs ${
-                isSweet
-                  ? 'bg-[#D9B77B]/25 text-[#5C3A0A] border-[#D9B77B]/70'
-                  : 'bg-[#B98278]/25 text-[#F8E6A0] border-[#B98278]/60'
-              }`}
-            >
-              {coupon.code}
-            </span>
-            <span
-              className={`text-[9px] font-mono tracking-widest uppercase opacity-75 ${
-                isSweet ? 'text-[#8C5D19]' : 'text-[#B98278]'
-              }`}
-            >
-              {isSweet ? 'Princess Tier' : '18+ Spicy'}
-            </span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span
+                className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-widest border shadow-xs ${
+                  isSweet
+                    ? 'bg-[#D9B77B]/25 text-[#5C3A0A] border-[#D9B77B]/70'
+                    : 'bg-[#B98278]/25 text-[#F8E6A0] border-[#B98278]/60'
+                }`}
+              >
+                {coupon.code}
+              </span>
+              <span
+                className={`text-[9px] font-mono tracking-widest uppercase opacity-75 ${
+                  isSweet ? 'text-[#8C5D19]' : 'text-[#B98278]'
+                }`}
+              >
+                {isSweet ? 'Princess Tier' : '18+ Spicy'}
+              </span>
+            </div>
+            {coupon.serialNumber && (
+              <span
+                className={`text-[8px] font-mono tracking-wider opacity-60 ${
+                  isSweet ? 'text-[#5C3A0A]' : 'text-[#E5D2C2]'
+                }`}
+              >
+                {coupon.serialNumber}
+              </span>
+            )}
           </div>
 
           {/* Center Info: Romantic Title & Description */}
@@ -405,7 +423,7 @@ export const VipCouponCard: React.FC<VipCouponCardProps> = ({
             }`}
           >
             <div>
-              <span className="opacity-60">Holder:</span> Uci (Pacarku)
+              <span className="opacity-60">Holder:</span> Uci (Cintaku)
             </div>
             <div>
               <span className="opacity-60">Terms:</span>{' '}
@@ -425,16 +443,24 @@ export const VipCouponCard: React.FC<VipCouponCardProps> = ({
           {/* Physical Ink Impression Stamp */}
           {isClaimed ? (
             <div
-              className={`my-1 px-2.5 py-1 rounded-lg border-2 border-dashed text-center animate-in zoom-in-95 rotate-[-1.5deg] shadow-xs ${
+              className={`relative my-1 px-2.5 py-1.5 rounded-lg border-2 border-dashed text-center animate-in zoom-in-95 rotate-[-1deg] shadow-xs ${
                 isSweet
                   ? 'border-[#9E1A33] bg-[#9E1A33]/10 text-[#9E1A33]'
                   : 'border-[#E11D48] bg-[#E11D48]/15 text-[#FDA4AF]'
               }`}
             >
-              <span className="text-[11px] font-mono font-bold tracking-wider uppercase block">
-                {isSweet ? 'CLAIMED & REDEEMED' : 'CLAIMED FOR TONIGHT / REUNION'}
+              {burstActive && (
+                <div className="pointer-events-none absolute -top-2 inset-x-0 flex justify-center gap-2 animate-bounce">
+                  <Sparkles className="w-3.5 h-3.5 text-[#FDE047]" />
+                  <Sparkles className="w-4 h-4 text-[#D9AE50]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#FDE047]" />
+                </div>
+              )}
+              <span className="text-[9.5px] sm:text-[10px] font-mono font-bold tracking-wider uppercase block leading-snug">
+                {coupon.redeemedBadgeText ?? 'REDEEMED BY UCI — SCREENSHOT & SEND TO SAYANG.'}
               </span>
-              <span className="text-[9px] font-mono opacity-80 block">
+              <span className="text-[8.5px] font-mono opacity-80 block mt-0.5">
+                {coupon.serialNumber ? `${coupon.serialNumber} • ` : ''}
                 {claimedAtIso ? new Date(claimedAtIso).toLocaleDateString() : 'Active'}
               </span>
             </div>
@@ -462,7 +488,7 @@ export const VipCouponCard: React.FC<VipCouponCardProps> = ({
           {!isClaimed ? (
             <button
               type="button"
-              onClick={onRedeem}
+              onClick={handleRedeemClick}
               className={`w-full py-2 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer active:scale-98 ${
                 isSweet
                   ? 'bg-[#180E04] text-[#FFF9EA] hover:bg-[#2A1809]'

@@ -50,7 +50,7 @@ export const Act4TwoSidesOfUs: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col justify-between px-3 sm:px-6 lg:px-10 pt-10 sm:pt-4 pb-10 lg:pb-3 select-none overflow-x-hidden">
+    <div className="relative w-full min-h-screen flex flex-col justify-between px-3 sm:px-6 lg:px-10 pt-14 sm:pt-14 pb-10 lg:pb-3 select-none overflow-x-hidden">
       {/* ─── LAYER 1: TOP NARRATIVE HEADER & SUB-STAGE SWITCHER ─── */}
       <div className="relative z-20 flex flex-col items-center text-center max-w-3xl mx-auto animate-in fade-in duration-700">
         {/* Chapter Pill Badge */}

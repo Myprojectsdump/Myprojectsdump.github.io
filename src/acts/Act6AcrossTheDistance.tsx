@@ -72,6 +72,11 @@ export const Act6AcrossTheDistance: React.FC = () => {
           completeHeartbeat();
           proceduralAudio.stopHeartbeat();
           proceduralAudio.playStarBridgeChime();
+          if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+            try {
+              navigator.vibrate([60, 40, 120]);
+            } catch (_) {}
+          }
           return;
         }
 

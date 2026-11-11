@@ -130,7 +130,7 @@ export const SkyLanternExperience: React.FC = () => {
 
           {/* Form Prompt */}
           <label htmlFor="sky-wish-textarea" className="text-xs font-serif text-[#451A03] italic leading-snug">
-            What does pacarku wish for this year? (Keep it secret or share with the sky...)
+            What does cintaku wish for this year? (Keep it secret or share with the sky...)
           </label>
 
           {/* Text Area */}

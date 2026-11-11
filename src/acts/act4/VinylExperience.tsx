@@ -1,9 +1,9 @@
 // src/acts/act4/VinylExperience.tsx
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useExperienceStore } from '../../store/useExperienceStore';
 import { STORY_DATA } from '../../config/storyContent';
-import { proceduralAudio } from '../../engine/audio/ProceduralAudio';
+import { musicController } from '../../utils/musicController';
 import { VinylSideSelector } from './VinylSideSelector';
 import { VinylTurntable } from './VinylTurntable';
 import { ConfessionCard } from './ConfessionCard';
@@ -21,22 +21,38 @@ export const VinylExperience: React.FC = () => {
 
   const trackData = STORY_DATA.vinylTracks[vinylSide];
 
+  // Keep Vinyl turntable play state in sync with musicController
+  useEffect(() => {
+    return musicController.subscribe((mState) => {
+      if (mState.isPlaying && !mState.isMuted && !isPlaying) {
+        setVinylPlaying(true);
+      }
+    });
+  }, [isPlaying, setVinylPlaying]);
+
   const handleToggleSide = (newSide?: 'daylight' | 'afterHours') => {
     const nextSide = newSide || (vinylSide === 'daylight' ? 'afterHours' : 'daylight');
     setVinylSide(nextSide);
-    if (isPlaying) {
-      proceduralAudio.startVinylLoop(nextSide);
-    }
+    musicController.switchTrack(
+      nextSide === 'afterHours' ? 'act-3-romantic-01' : 'act-3-daydreamin'
+    );
   };
 
   const handleTogglePlay = () => {
     const nextPlaying = !isPlaying;
     setVinylPlaying(nextPlaying);
     if (nextPlaying) {
-      proceduralAudio.startVinylLoop(vinylSide);
+      musicController.switchTrack(
+        vinylSide === 'afterHours' ? 'act-3-romantic-01' : 'act-3-daydreamin'
+      );
+      musicController.play();
     } else {
-      proceduralAudio.stopVinylLoop();
+      musicController.pause();
     }
+  };
+
+  const handleScratch = (deltaSeconds: number) => {
+    musicController.scratchActiveVinyl(deltaSeconds);
   };
 
   const handleNextConfession = () => {
@@ -57,17 +73,21 @@ export const VinylExperience: React.FC = () => {
         />
       </div>
 
-      {/* Main Center Stage: Turntable on Left, Featured Confession Card on Right */}
+      {/* Main Center Stage: Dual Translucent Ruby Turntable on Left, Featured Confession Card on Right */}
       <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 my-auto z-20">
-        {/* Left Column: Detailed Vinyl Turntable & Controls */}
+        {/* Left Column: Dual Translucent Ruby-Red Vinyl Turntable & Controls */}
         <div className="flex flex-col items-center">
           <VinylTurntable
             vinylSide={vinylSide}
             isPlaying={isPlaying}
             kissCount={kissCount}
-            onToggleSide={() => handleToggleSide()}
+            photoPath={trackData.photoPath}
+            daylightPhotoPath={STORY_DATA.vinylTracks.daylight.photoPath}
+            afterHoursPhotoPath={STORY_DATA.vinylTracks.afterHours.photoPath}
+            onToggleSide={(side) => handleToggleSide(side)}
             onTogglePlay={handleTogglePlay}
             onSendKiss={incrementKissCount}
+            onScratch={handleScratch}
           />
         </div>
 
@@ -76,6 +96,7 @@ export const VinylExperience: React.FC = () => {
           <ConfessionCard
             vinylSide={vinylSide}
             confessionIndex={confessionIndex}
+            cards={trackData.cards}
             confessions={trackData.confessions}
             isPlaying={isPlaying}
             onPrev={handlePrevConfession}
@@ -85,6 +106,7 @@ export const VinylExperience: React.FC = () => {
 
           <ConfessionTrackList
             vinylSide={vinylSide}
+            cards={trackData.cards}
             confessions={trackData.confessions}
             selectedIndex={confessionIndex}
             onSelectIndex={(idx) => setConfessionIndex(idx)}

@@ -28,7 +28,7 @@ export const FINAL_POEMS: LovePoem[] = [
     id: 'poem-1',
     numeral: 'I',
     title: 'The Day You Changed Everything',
-    subtitle: 'For My Pacarku',
+    subtitle: 'For My Cintaku',
     dedication: 'November 2026',
     theme: 'blossom',
     content: `Some people just enter your life,
@@ -52,8 +52,8 @@ you became the reason it feels like home.`,
 quiet whispers and wild, breathless laughs.
 
 You roll your eyes when I tease you,
-bite my arm when you can't contain your love,
-and look at me like I'm the only person in the room.
+tease me on camera when you can't contain your love,
+and look at me through the screen like I'm the only person in your world.
 
 Out of all the quiet, predictable things in this world,
 you will always be my favourite kind of chaos.`,
