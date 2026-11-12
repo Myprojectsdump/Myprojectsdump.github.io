@@ -132,9 +132,9 @@
   - **Single Global `SOUND ON` / `SOUND OFF` Control & `BACK` / `NEXT` Navigation (`src/components/hud/SoundControlPill.tsx`, `src/components/hud/TopBrandBar.tsx`, `src/components/hud/ComfortControls.tsx`, `src/acts/OpeningPortal.tsx`):**
     - Consolidated all audio controls into a single visible `SOUND ON` / `SOUND OFF` button in `SoundControlPill.tsx` and removed the duplicate sound toggle in `OpeningPortal.tsx`.
     - Added explicit `BACK` and `NEXT` buttons in `TopBrandBar.tsx` across all acts (including mobile), disabled `BACK` on Act I, wired `NEXT` on the final act to replay from Act I, and removed the duplicate `Skip Scene` button from `ComfortControls.tsx`.
-  - **Terminology & Grounded LDR Honesty (`src/`):**
+  - **Terminology & Grounded SYG Honesty (`src/`):**
     - Replaced all user-facing occurrences of `pacar`/`pacarku` with `cinta`/`cintaku` and `boyfriend` with `Sayang`.
-    - Removed all false future meeting/reunion promises and included the grounded LDR sincerity paragraph in `STORY_DATA.birthdayLetter.paragraphs`.
+    - Removed all false future meeting/reunion promises and included the grounded SYG sincerity paragraph in `STORY_DATA.birthdayLetter.paragraphs`.
   - **Telegram Address Request Inside the Existing Letter Page (`src/acts/act7/letter/BirthdayLetterExperience.tsx`, `src/acts/FinalGiftReveal.tsx`, `src/data/storyData.ts`):**
     - Removed the WhatsApp delivery button from `FinalGiftReveal.tsx` and `BirthdayLetterExperience.tsx`.
     - Added the `"ONE TINY THING, CINTAKU"` Telegram request section (`"SEND MY ADDRESS TO SAYANG ON TELEGRAM"`) inside `BirthdayLetterExperience.tsx` using `https://t.me/${telegramUsername}?text=${encodeURIComponent(message)}` with username validation and zero storage of any address.
@@ -152,7 +152,7 @@
 - **Remaining Issues:**
   - Set `telegramUsername` in `src/data/storyData.ts` (replace `'YOUR_TELEGRAM_USERNAME'` with actual Telegram username without `@`), drop Uci's `.jpg` photos into `public/photos/`, and optionally place `closing-its-been-a-long-long-time.mp3` into `public/audio/` (otherwise it automatically plays the included licensed vintage jazz slow-dance fallback `closing-lounging-by-moonlight.mp3`).
 
-## 2026-11-11 — Master Experience Upgrade: LDR Personalization, Local Mixkit Soundtrack, Photography System & Act Refinements
+## 2026-11-11 — Master Experience Upgrade: SYG Personalization, Local Mixkit Soundtrack, Photography System & Act Refinements
 
 - **Files Changed:**
   - `src/types/story.ts`
@@ -199,23 +199,23 @@
 
 - **What Changed:**
   - **Absolute Design Preservation:** Preserved the approved visual aesthetic, color palette, typography, backgrounds, section layouts, and animations across all chapters.
-  - **Authentic Long-Distance Relationship (LDR) Copy:** Replaced all fabricated physical memories (never met in person yet) with authentic long-distance moments for Uci (`pacarku`, `cintaku`, `sayang`): late-night calls, sleepy voice notes, camera expressions, shared playlists, virtual movie dates, counting down to the first real hug, and 2:00 AM private energy.
-  - **Centralized Content & Types (`src/data/storyData.ts`, `src/types/story.ts`):** Unified all 14 photo paths (`PHOTO_PATHS`), 8 Mixkit audio tracks (`SOUNDTRACK_MANIFEST`), vinyl Side A/B cards, 8 constellation nodes, 4 LDR keepsake memories, 4 potion ingredients (`20%`, `20%`, `20%`, `40%`), 4 scratch-card messages, 6 heartbeat whispers, LDR birthday letter, gift reveal address prompt, `boyfriendWhatsAppNumber` (default `""`), and 6 LDR VIP coupons.
+  - **Authentic Long-Distance Relationship (SYG) Copy:** Replaced all fabricated physical memories (never met in person yet) with authentic long-distance moments for Uci (`pacarku`, `cintaku`, `sayang`): late-night calls, sleepy voice notes, camera expressions, shared playlists, virtual movie dates, counting down to the first real hug, and 2:00 AM private energy.
+  - **Centralized Content & Types (`src/data/storyData.ts`, `src/types/story.ts`):** Unified all 14 photo paths (`PHOTO_PATHS`), 8 Mixkit audio tracks (`SOUNDTRACK_MANIFEST`), vinyl Side A/B cards, 8 constellation nodes, 4 SYG keepsake memories, 4 potion ingredients (`20%`, `20%`, `20%`, `40%`), 4 scratch-card messages, 6 heartbeat whispers, SYG birthday letter, gift reveal address prompt, `boyfriendWhatsAppNumber` (default `""`), and 6 SYG VIP coupons.
   - **Locally Hosted Mixkit Soundtrack (`src/utils/musicController.ts` & `public/audio/`):** Downloaded all 8 official Mixkit Free Stock Music MP3s into `public/audio/` with `public/audio/LICENSES.md`. Implemented `musicController.ts` using native `HTMLAudioElement` with 1.5s cosine crossfades, chapter/mode auto-switching, and fallback synthesis. Unified audio controls into `SoundControlPill.tsx` and removed duplicate top-right audio buttons from `PreludeInvitation.tsx` and `OpeningPortal.tsx`.
   - **Photography System (`public/photos/` & `SmartImage.tsx`):** Configured `/photos/*.jpg` paths across all acts with `loading="lazy"`, `object-position`, and automatic graceful fallback to `HeirloomMediaPlaceholder` / warm reflection when user photo files are not yet added to `public/photos/`.
   - **Act-by-Act Refinements:**
     - **Opening (`OpeningPortal.tsx`):** Removed bottom `SCROLL TO EXPLORE` indicator and redundant `Continue` button; `ENTER HER UNIVERSE` unlocks audio and transitions directly.
     - **Act I (`Act1TwoCountriesOneSky.tsx`):** Added cosmic portrait locket (`uci-portrait.jpg`) on bridge connection and `/audio/my-voice-note.mp3` support.
-    - **Act II (`Act2LittleThingsIKeep.tsx`):** Updated header to `"Four Little Things I Want You to Keep."` with 4 LDR keepsake cards (`01 — OPEN WHEN YOU MISS ME`, `02 — A LITTLE PIECE OF MY VOICE`, `03 — OUR MIDNIGHT RITUALS` with 6 bullet rituals, `04 — OUR FIRST HELLO`).
-    - **Act III (`FogMirrorCanvas.tsx`):** Rendered `uci-mirror.jpg` underneath the condensation canvas so wiping reveals her reflection, alongside 5 LDR mirror notes.
-    - **Act IV (`VinylExperience.tsx`, `VinylTurntable.tsx`, `ConfessionCard.tsx`, `ConfessionTrackList.tsx`, `ConstellationMap.tsx`, `StarDetailCard.tsx`):** Wired Side A (`act-3-daydreamin.mp3`, `uci-daylight.jpg`) and Side B (`act-3-romantic-01.mp3`, `uci-afterhours.jpg`) to `musicController`; added 4 clickable flip cards per side with animated gold borders; updated 8 LDR constellation nodes with local photos, rose-gold/crimson-champagne/warm-gold accents, stronger haptics on spicy nodes 3–6, and supernova burst on 8/8 discovery.
+    - **Act II (`Act2LittleThingsIKeep.tsx`):** Updated header to `"Four Little Things I Want You to Keep."` with 4 SYG keepsake cards (`01 — OPEN WHEN YOU MISS ME`, `02 — A LITTLE PIECE OF MY VOICE`, `03 — OUR MIDNIGHT RITUALS` with 6 bullet rituals, `04 — OUR FIRST HELLO`).
+    - **Act III (`FogMirrorCanvas.tsx`):** Rendered `uci-mirror.jpg` underneath the condensation canvas so wiping reveals her reflection, alongside 5 SYG mirror notes.
+    - **Act IV (`VinylExperience.tsx`, `VinylTurntable.tsx`, `ConfessionCard.tsx`, `ConfessionTrackList.tsx`, `ConstellationMap.tsx`, `StarDetailCard.tsx`):** Wired Side A (`act-3-daydreamin.mp3`, `uci-daylight.jpg`) and Side B (`act-3-romantic-01.mp3`, `uci-afterhours.jpg`) to `musicController`; added 4 clickable flip cards per side with animated gold borders; updated 8 SYG constellation nodes with local photos, rose-gold/crimson-champagne/warm-gold accents, stronger haptics on spicy nodes 3–6, and supernova burst on 8/8 discovery.
     - **Act V (`IngredientVial.tsx`, `TemperatureGauge.tsx`, `FoilScratchCanvas.tsx`):** Updated formula to `20%`, `20%`, `20%`, and `40% Bedroom Menace & Mischief` (prominent crimson bottle), overheat banner to `"DANGER: TOO HOT TO HANDLE. BOYFRIEND WILLPOWER COMPROMISED."`, and scratch card auto-reveal threshold to `>= 45%`.
-    - **Act VI (`Act6AcrossTheDistance.tsx`):** Updated to 6 LDR heartbeat whispers and added completion haptic celebration at 8.0s.
-    - **Act VII & Final Gift (`BirthdayLetterExperience.tsx`, `FinalGiftReveal.tsx`):** Added `uci-finale.jpg` framing, LDR distance paragraph in the birthday letter, and `"A REAL BIRTHDAY GIFT AWAITS..."` private WhatsApp click-to-chat delivery address button (`https://wa.me/...`, never storing address in `localStorage`).
-    - **VIP Passbook (`VipCouponCard.tsx`):** Updated 6 LDR VIP coupons with serial numbers, confetti/sparkle burst on redemption, and `"REDEEMED BY UCI — SCREENSHOT & SEND TO YOUR BOYFRIEND."` badge.
+    - **Act VI (`Act6AcrossTheDistance.tsx`):** Updated to 6 SYG heartbeat whispers and added completion haptic celebration at 8.0s.
+    - **Act VII & Final Gift (`BirthdayLetterExperience.tsx`, `FinalGiftReveal.tsx`):** Added `uci-finale.jpg` framing, SYG distance paragraph in the birthday letter, and `"A REAL BIRTHDAY GIFT AWAITS..."` private WhatsApp click-to-chat delivery address button (`https://wa.me/...`, never storing address in `localStorage`).
+    - **VIP Passbook (`VipCouponCard.tsx`):** Updated 6 SYG VIP coupons with serial numbers, confetti/sparkle burst on redemption, and `"REDEEMED BY UCI — SCREENSHOT & SEND TO YOUR BOYFRIEND."` badge.
 
 - **Why:**
-  - Execute the Master Experience Upgrade for Uci with 100% authentic LDR copy, local Mixkit soundtrack playback, centralized photo/story configuration, and zero visual redesign.
+  - Execute the Master Experience Upgrade for Uci with 100% authentic SYG copy, local Mixkit soundtrack playback, centralized photo/story configuration, and zero visual redesign.
 
 - **Verification:**
   - Unit tests (`npm run test:unit`) passed 28/28 tests across all 4 suites.
@@ -464,6 +464,71 @@
 
 - **Remaining Issues:**
   - None. All acceptance criteria satisfied.
+
+## 2026-11-12 — THE GRAVITY OF UCI: Personal Photo Integration & Interactive Placement
+
+- **Files Changed:**
+  - `public/images/uci/uci-genesis.jpg`
+  - `public/images/uci/uci-mirror-reveal.jpg`
+  - `public/images/uci/uci-daylight-vinyl.jpg`
+  - `public/images/uci/uci-after-hours-vinyl.jpg`
+  - `public/images/uci/uci-eyes-detail.jpg`
+  - `public/images/uci/uci-lips-detail.jpg`
+  - `public/images/uci/uci-bedroom-menace.jpg`
+  - `public/images/uci/uci-princess-energy.jpg`
+  - `public/images/uci/uci-heartbeat-reveal.jpg`
+  - `public/images/uci/uci-final-letter.jpg`
+  - `public/images/uci/uci-keepsake-four-moments.jpg`
+  - `public/images/uci/uci-keepsake-late-night-call.jpg`
+  - `public/images/uci/uci-keepsake-casual-selfie.jpg`
+  - `public/images/uci/uci-keepsake-night-memory.jpg`
+  - `public/images/uci/uci-keepsake-monochrome.jpg`
+  - `public/images/uci/ASSET_MANIFEST.md`
+  - `public/photos/*.jpg` (backward-compatible alias synchronization)
+  - `src/types/story.ts`
+  - `src/data/storyData.ts`
+  - `src/config/mediaManifest.ts`
+  - `src/acts/Act2LittleThingsIKeep.tsx`
+  - `src/acts/act4/StarDetailCard.tsx`
+  - `src/engine/canvas2d/FoilScratchCanvas.tsx`
+  - `src/acts/Act6AcrossTheDistance.tsx`
+  - `src/acts/act7/letter/BirthdayLetterExperience.tsx`
+  - `tests/unit/storyContentIntegrity.test.ts`
+
+- **What Changed:**
+  - **Asset Integration & Centralized Manifest:**
+    - Organized all 15 authentic photographs into `public/images/uci/` following the visual mapping of the attached contact sheet (`THE GRAVITY OF UCI — Selected Photo Map`).
+    - Synchronized backward-compatible aliases in `public/photos/` (`uci-portrait.jpg`, `uci-mirror.jpg`, `keepsake-01..05.jpg`, `uci-finale.jpg`).
+    - Authored exhaustive documentation in `public/images/uci/ASSET_MANIFEST.md` documenting original upload names, new paths, target acts, reveal types, aspect ratios, and object-position settings.
+    - Updated `PHOTO_PATHS` in `src/data/storyData.ts` and `src/types/story.ts` with typed keys and exact object-position configurations.
+  - **Act-by-Act Placement & Interactive Reveals:**
+    - **Act I (`Act1TwoCountriesOneSky.tsx`):** Wired `uci-genesis.jpg` to reveal inside the celestial locket after the supernova / two-country bridge convergence.
+    - **Act II Keepsakes (`Act2LittleThingsIKeep.tsx`):** Upgraded gallery to 5 refined keepsakes under the title *"A Few Things I Adore About You"* with responsive grid (`grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5`). The 4-frame collage (`uci-keepsake-four-moments.jpg`) is preserved strictly as a single complete image with `object-contain`. The late-night call (`uci-keepsake-late-night-call.jpg`) is paired with the voice-note player. Added `uci-keepsake-monochrome.jpg` as an understated quiet reflection memory.
+    - **Act III Steamy Mirror (`FogMirrorCanvas.tsx`):** Confirmed `uci-mirror-reveal.jpg` is positioned underneath the condensation steam layer, cleanly revealed as Uci wipes away the mist.
+    - **Act IV Dual-Soul Vinyl & Constellation (`VinylTurntable.tsx` & `StarDetailCard.tsx`):**
+      - Dual-Soul Vinyl displays `uci-daylight-vinyl.jpg` on Side A (Daylight) and `uci-after-hours-vinyl.jpg` on Side B (After-Hours).
+      - Constellation: Node 01 (`eyes`) reveals `uci-eyes-detail.jpg` in a customized wide aspect-ratio (`2.6:1`) container without stretching. Node 03/05 (`lips`) reveals `uci-lips-detail.jpg`.
+    - **Act V Midnight Alchemy & Scratch Vault (`FoilScratchCanvas.tsx`):**
+      - Added authentic photo reveals underneath the gold foil: Card 01 (Bedroom Menace confession) reveals `uci-bedroom-menace.jpg`; Card 04 reveals `uci-princess-energy.jpg`.
+    - **Act VI Heartbeat Bridge (`Act6AcrossTheDistance.tsx`):**
+      - Biometric synchronization reveal: Immediately upon completing the 8-second biometric touch-and-hold connection, a framed portrait with `uci-heartbeat-reveal.jpg` animates into view alongside the synchronized hearts whisper.
+    - **Act VII Birthday Letter & Climax (`BirthdayLetterExperience.tsx` & `FinalGiftReveal.tsx`):**
+      - Beside the unfolded parchment letter, `uci-final-letter.jpg` is displayed in an elegant gold-bordered frame across both mobile and desktop viewports, perfectly harmonized with the voice note player.
+      - In `FinalGiftReveal.tsx`, `uci-final-letter.jpg` is showcased within the royal gift reveal card.
+
+- **Why:**
+  - Fulfill the user's requirement to personalize THE GRAVITY OF UCI with Uci's authentic photographs across every emotional beat, while maintaining the approved design language, aspect ratios, responsive layout, and interactive discovery mechanics.
+
+- **Verification:**
+  - TypeScript compilation (`npx tsc --noEmit`) completed with 0 errors.
+  - Vitest unit test suite (`npm run test:unit`) executed with 4 passing test files (29 out of 29 tests passing).
+  - Vite production build (`npm run build`) succeeded in 1m 3s producing optimized production assets in `dist/`.
+
+- **Deployment Status:**
+  - Verified locally in `d:\UCI Bday`. Not deployed to RDP / production (awaiting approval).
+
+- **Remaining Issues:**
+  - None. All 15 photographs verified and integrated.
 
 ## 2026-11-01 — Act II "Our Little Keepsakes" Redesign
 
@@ -798,6 +863,71 @@
 - **Remaining Issues:**
   - None. All acceptance criteria satisfied.
 
+## 2026-11-12 — THE GRAVITY OF UCI: Personal Photo Integration & Interactive Placement
+
+- **Files Changed:**
+  - `public/images/uci/uci-genesis.jpg`
+  - `public/images/uci/uci-mirror-reveal.jpg`
+  - `public/images/uci/uci-daylight-vinyl.jpg`
+  - `public/images/uci/uci-after-hours-vinyl.jpg`
+  - `public/images/uci/uci-eyes-detail.jpg`
+  - `public/images/uci/uci-lips-detail.jpg`
+  - `public/images/uci/uci-bedroom-menace.jpg`
+  - `public/images/uci/uci-princess-energy.jpg`
+  - `public/images/uci/uci-heartbeat-reveal.jpg`
+  - `public/images/uci/uci-final-letter.jpg`
+  - `public/images/uci/uci-keepsake-four-moments.jpg`
+  - `public/images/uci/uci-keepsake-late-night-call.jpg`
+  - `public/images/uci/uci-keepsake-casual-selfie.jpg`
+  - `public/images/uci/uci-keepsake-night-memory.jpg`
+  - `public/images/uci/uci-keepsake-monochrome.jpg`
+  - `public/images/uci/ASSET_MANIFEST.md`
+  - `public/photos/*.jpg` (backward-compatible alias synchronization)
+  - `src/types/story.ts`
+  - `src/data/storyData.ts`
+  - `src/config/mediaManifest.ts`
+  - `src/acts/Act2LittleThingsIKeep.tsx`
+  - `src/acts/act4/StarDetailCard.tsx`
+  - `src/engine/canvas2d/FoilScratchCanvas.tsx`
+  - `src/acts/Act6AcrossTheDistance.tsx`
+  - `src/acts/act7/letter/BirthdayLetterExperience.tsx`
+  - `tests/unit/storyContentIntegrity.test.ts`
+
+- **What Changed:**
+  - **Asset Integration & Centralized Manifest:**
+    - Organized all 15 authentic photographs into `public/images/uci/` following the visual mapping of the attached contact sheet (`THE GRAVITY OF UCI — Selected Photo Map`).
+    - Synchronized backward-compatible aliases in `public/photos/` (`uci-portrait.jpg`, `uci-mirror.jpg`, `keepsake-01..05.jpg`, `uci-finale.jpg`).
+    - Authored exhaustive documentation in `public/images/uci/ASSET_MANIFEST.md` documenting original upload names, new paths, target acts, reveal types, aspect ratios, and object-position settings.
+    - Updated `PHOTO_PATHS` in `src/data/storyData.ts` and `src/types/story.ts` with typed keys and exact object-position configurations.
+  - **Act-by-Act Placement & Interactive Reveals:**
+    - **Act I (`Act1TwoCountriesOneSky.tsx`):** Wired `uci-genesis.jpg` to reveal inside the celestial locket after the supernova / two-country bridge convergence.
+    - **Act II Keepsakes (`Act2LittleThingsIKeep.tsx`):** Upgraded gallery to 5 refined keepsakes under the title *"A Few Things I Adore About You"* with responsive grid (`grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5`). The 4-frame collage (`uci-keepsake-four-moments.jpg`) is preserved strictly as a single complete image with `object-contain`. The late-night call (`uci-keepsake-late-night-call.jpg`) is paired with the voice-note player. Added `uci-keepsake-monochrome.jpg` as an understated quiet reflection memory.
+    - **Act III Steamy Mirror (`FogMirrorCanvas.tsx`):** Confirmed `uci-mirror-reveal.jpg` is positioned underneath the condensation steam layer, cleanly revealed as Uci wipes away the mist.
+    - **Act IV Dual-Soul Vinyl & Constellation (`VinylTurntable.tsx` & `StarDetailCard.tsx`):**
+      - Dual-Soul Vinyl displays `uci-daylight-vinyl.jpg` on Side A (Daylight) and `uci-after-hours-vinyl.jpg` on Side B (After-Hours).
+      - Constellation: Node 01 (`eyes`) reveals `uci-eyes-detail.jpg` in a customized wide aspect-ratio (`2.6:1`) container without stretching. Node 03/05 (`lips`) reveals `uci-lips-detail.jpg`.
+    - **Act V Midnight Alchemy & Scratch Vault (`FoilScratchCanvas.tsx`):**
+      - Added authentic photo reveals underneath the gold foil: Card 01 (Bedroom Menace confession) reveals `uci-bedroom-menace.jpg`; Card 04 reveals `uci-princess-energy.jpg`.
+    - **Act VI Heartbeat Bridge (`Act6AcrossTheDistance.tsx`):**
+      - Biometric synchronization reveal: Immediately upon completing the 8-second biometric touch-and-hold connection, a framed portrait with `uci-heartbeat-reveal.jpg` animates into view alongside the synchronized hearts whisper.
+    - **Act VII Birthday Letter & Climax (`BirthdayLetterExperience.tsx` & `FinalGiftReveal.tsx`):**
+      - Beside the unfolded parchment letter, `uci-final-letter.jpg` is displayed in an elegant gold-bordered frame across both mobile and desktop viewports, perfectly harmonized with the voice note player.
+      - In `FinalGiftReveal.tsx`, `uci-final-letter.jpg` is showcased within the royal gift reveal card.
+
+- **Why:**
+  - Fulfill the user's requirement to personalize THE GRAVITY OF UCI with Uci's authentic photographs across every emotional beat, while maintaining the approved design language, aspect ratios, responsive layout, and interactive discovery mechanics.
+
+- **Verification:**
+  - TypeScript compilation (`npx tsc --noEmit`) completed with 0 errors.
+  - Vitest unit test suite (`npm run test:unit`) executed with 4 passing test files (29 out of 29 tests passing).
+  - Vite production build (`npm run build`) succeeded in 1m 3s producing optimized production assets in `dist/`.
+
+- **Deployment Status:**
+  - Verified locally in `d:\UCI Bday`. Not deployed to RDP / production (awaiting approval).
+
+- **Remaining Issues:**
+  - None. All 15 photographs verified and integrated.
+
 ## 2026-11-02 — Act VIII "Final Gift Reveal" Master Upgrade & Climax Layout Stabilization
 
 - **Files Changed:**
@@ -840,3 +970,68 @@
 
 - **Remaining Issues:**
   - None. All acceptance criteria satisfied.
+
+## 2026-11-12 — THE GRAVITY OF UCI: Personal Photo Integration & Interactive Placement
+
+- **Files Changed:**
+  - `public/images/uci/uci-genesis.jpg`
+  - `public/images/uci/uci-mirror-reveal.jpg`
+  - `public/images/uci/uci-daylight-vinyl.jpg`
+  - `public/images/uci/uci-after-hours-vinyl.jpg`
+  - `public/images/uci/uci-eyes-detail.jpg`
+  - `public/images/uci/uci-lips-detail.jpg`
+  - `public/images/uci/uci-bedroom-menace.jpg`
+  - `public/images/uci/uci-princess-energy.jpg`
+  - `public/images/uci/uci-heartbeat-reveal.jpg`
+  - `public/images/uci/uci-final-letter.jpg`
+  - `public/images/uci/uci-keepsake-four-moments.jpg`
+  - `public/images/uci/uci-keepsake-late-night-call.jpg`
+  - `public/images/uci/uci-keepsake-casual-selfie.jpg`
+  - `public/images/uci/uci-keepsake-night-memory.jpg`
+  - `public/images/uci/uci-keepsake-monochrome.jpg`
+  - `public/images/uci/ASSET_MANIFEST.md`
+  - `public/photos/*.jpg` (backward-compatible alias synchronization)
+  - `src/types/story.ts`
+  - `src/data/storyData.ts`
+  - `src/config/mediaManifest.ts`
+  - `src/acts/Act2LittleThingsIKeep.tsx`
+  - `src/acts/act4/StarDetailCard.tsx`
+  - `src/engine/canvas2d/FoilScratchCanvas.tsx`
+  - `src/acts/Act6AcrossTheDistance.tsx`
+  - `src/acts/act7/letter/BirthdayLetterExperience.tsx`
+  - `tests/unit/storyContentIntegrity.test.ts`
+
+- **What Changed:**
+  - **Asset Integration & Centralized Manifest:**
+    - Organized all 15 authentic photographs into `public/images/uci/` following the visual mapping of the attached contact sheet (`THE GRAVITY OF UCI — Selected Photo Map`).
+    - Synchronized backward-compatible aliases in `public/photos/` (`uci-portrait.jpg`, `uci-mirror.jpg`, `keepsake-01..05.jpg`, `uci-finale.jpg`).
+    - Authored exhaustive documentation in `public/images/uci/ASSET_MANIFEST.md` documenting original upload names, new paths, target acts, reveal types, aspect ratios, and object-position settings.
+    - Updated `PHOTO_PATHS` in `src/data/storyData.ts` and `src/types/story.ts` with typed keys and exact object-position configurations.
+  - **Act-by-Act Placement & Interactive Reveals:**
+    - **Act I (`Act1TwoCountriesOneSky.tsx`):** Wired `uci-genesis.jpg` to reveal inside the celestial locket after the supernova / two-country bridge convergence.
+    - **Act II Keepsakes (`Act2LittleThingsIKeep.tsx`):** Upgraded gallery to 5 refined keepsakes under the title *"A Few Things I Adore About You"* with responsive grid (`grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5`). The 4-frame collage (`uci-keepsake-four-moments.jpg`) is preserved strictly as a single complete image with `object-contain`. The late-night call (`uci-keepsake-late-night-call.jpg`) is paired with the voice-note player. Added `uci-keepsake-monochrome.jpg` as an understated quiet reflection memory.
+    - **Act III Steamy Mirror (`FogMirrorCanvas.tsx`):** Confirmed `uci-mirror-reveal.jpg` is positioned underneath the condensation steam layer, cleanly revealed as Uci wipes away the mist.
+    - **Act IV Dual-Soul Vinyl & Constellation (`VinylTurntable.tsx` & `StarDetailCard.tsx`):**
+      - Dual-Soul Vinyl displays `uci-daylight-vinyl.jpg` on Side A (Daylight) and `uci-after-hours-vinyl.jpg` on Side B (After-Hours).
+      - Constellation: Node 01 (`eyes`) reveals `uci-eyes-detail.jpg` in a customized wide aspect-ratio (`2.6:1`) container without stretching. Node 03/05 (`lips`) reveals `uci-lips-detail.jpg`.
+    - **Act V Midnight Alchemy & Scratch Vault (`FoilScratchCanvas.tsx`):**
+      - Added authentic photo reveals underneath the gold foil: Card 01 (Bedroom Menace confession) reveals `uci-bedroom-menace.jpg`; Card 04 reveals `uci-princess-energy.jpg`.
+    - **Act VI Heartbeat Bridge (`Act6AcrossTheDistance.tsx`):**
+      - Biometric synchronization reveal: Immediately upon completing the 8-second biometric touch-and-hold connection, a framed portrait with `uci-heartbeat-reveal.jpg` animates into view alongside the synchronized hearts whisper.
+    - **Act VII Birthday Letter & Climax (`BirthdayLetterExperience.tsx` & `FinalGiftReveal.tsx`):**
+      - Beside the unfolded parchment letter, `uci-final-letter.jpg` is displayed in an elegant gold-bordered frame across both mobile and desktop viewports, perfectly harmonized with the voice note player.
+      - In `FinalGiftReveal.tsx`, `uci-final-letter.jpg` is showcased within the royal gift reveal card.
+
+- **Why:**
+  - Fulfill the user's requirement to personalize THE GRAVITY OF UCI with Uci's authentic photographs across every emotional beat, while maintaining the approved design language, aspect ratios, responsive layout, and interactive discovery mechanics.
+
+- **Verification:**
+  - TypeScript compilation (`npx tsc --noEmit`) completed with 0 errors.
+  - Vitest unit test suite (`npm run test:unit`) executed with 4 passing test files (29 out of 29 tests passing).
+  - Vite production build (`npm run build`) succeeded in 1m 3s producing optimized production assets in `dist/`.
+
+- **Deployment Status:**
+  - Verified locally in `d:\UCI Bday`. Not deployed to RDP / production (awaiting approval).
+
+- **Remaining Issues:**
+  - None. All 15 photographs verified and integrated.

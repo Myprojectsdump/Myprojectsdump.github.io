@@ -12,7 +12,7 @@ interface FogMirrorCanvasProps {
 const COLS = 40;
 const ROWS = 25;
 
-// Perfectly spaced LDR notes safely contained within the mirror glass
+// Perfectly spaced SYG notes safely contained within the mirror glass
 export const MIRROR_NOTES = [
   {
     id: 1,

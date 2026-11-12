@@ -11,7 +11,7 @@ import {
 } from '../../src/config/storyContent';
 import { useExperienceStore } from '../../src/store/useExperienceStore';
 
-describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', () => {
+describe('AT-01: Final Refinement, Audio Repair & SYG Story Content Integrity', () => {
   const sourcePath = path.resolve(__dirname, '../../SOURCE_STORY_AND_COPY.md');
   const sourceContent = fs.readFileSync(sourcePath, 'utf-8');
 
@@ -40,9 +40,9 @@ describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', 
   });
 
   it('centralized PHOTO_PATHS and expanded 10-track SOUNDTRACK_MANIFEST are defined', () => {
-    expect(PHOTO_PATHS.portrait.path).toBe('/photos/uci-portrait.jpg');
-    expect(PHOTO_PATHS.mirror.path).toBe('/photos/uci-mirror.jpg');
-    expect(PHOTO_PATHS.finale.path).toBe('/photos/uci-finale.jpg');
+    expect(PHOTO_PATHS.portrait.path).toBe('/images/uci/uci-genesis.jpg');
+    expect(PHOTO_PATHS.mirror.path).toBe('/images/uci/uci-mirror-reveal.jpg');
+    expect(PHOTO_PATHS.finale.path).toBe('/images/uci/uci-final-letter.jpg');
     expect(Object.keys(SOUNDTRACK_MANIFEST)).toHaveLength(10);
     expect(SOUNDTRACK_MANIFEST['act-1-vastness'].src).toBe('/audio/act-1-vastness.mp3');
     expect(SOUNDTRACK_MANIFEST['act-2-skyline-piano'].src).toBe('/audio/act-2-skyline-piano.mp3');
@@ -56,16 +56,17 @@ describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', 
     expect(SOUNDTRACK_MANIFEST['closing-its-been-a-long-long-time'].defaultVolume).toBe(0.55);
   });
 
-  it('keepsakeMemories contains exact 4 LDR keepsake memories without false future meeting promises', () => {
-    expect(STORY_DATA.keepsakeMemories).toHaveLength(4);
-    expect(STORY_DATA.keepsakeMemories[0].categoryBadge).toBe('01 // OPEN WHEN YOU MISS ME');
-    expect(STORY_DATA.keepsakeMemories[1].categoryBadge).toBe('02 // A LITTLE PIECE OF MY VOICE');
+  it('keepsakeMemories contains 5 SYG keepsake memories without false future meeting promises', () => {
+    expect(STORY_DATA.keepsakeMemories).toHaveLength(5);
+    expect(STORY_DATA.keepsakeMemories[0].categoryBadge).toBe('01 // LATE-NIGHT CALL');
+    expect(STORY_DATA.keepsakeMemories[1].categoryBadge).toBe('02 // FOUR LITTLE MOMENTS');
     expect(STORY_DATA.keepsakeMemories[2].categoryBadge).toBe('03 // OUR MIDNIGHT RITUALS');
     expect(STORY_DATA.keepsakeMemories[2].bulletItems).toHaveLength(6);
     expect(STORY_DATA.keepsakeMemories[3].categoryBadge).toBe('04 // WHAT IS TRUE RIGHT NOW');
+    expect(STORY_DATA.keepsakeMemories[4].categoryBadge).toBe('05 // QUIET REFLECTION');
   });
 
-  it('steamyMirrorNotes contains exact 5 LDR notes and coordinates', () => {
+  it('steamyMirrorNotes contains exact 5 SYG notes and coordinates', () => {
     expect(STORY_DATA.steamyMirrorNotes).toHaveLength(5);
     expect(STORY_DATA.steamyMirrorNotes[0].text).toBe('Even through a screen, you leave me breathless.');
     expect(STORY_DATA.steamyMirrorNotes[4].text).toBe('Worth every mile between us. ♥');
@@ -83,12 +84,12 @@ describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', 
     expect(STORY_DATA.vinylTracks.afterHours.cards[0].title).toBe('THAT LOOK THROUGH THE SCREEN');
   });
 
-  it('constellationNodes contains exact 8 LDR nodes with local photo paths', () => {
+  it('constellationNodes contains exact 8 SYG nodes with local photo paths', () => {
     expect(STORY_DATA.constellationNodes).toHaveLength(8);
     const nodeIds = STORY_DATA.constellationNodes.map((n) => n.id);
     expect(nodeIds).toEqual(['eyes', 'laugh', 'lips', 'neck', 'bites', 'waist', 'voice', 'heart']);
-    expect(STORY_DATA.constellationNodes[0].photoPath).toBe('/photos/uci-eyes.jpg');
-    expect(STORY_DATA.constellationNodes[7].photoPath).toBe('/photos/uci-portrait.jpg');
+    expect(STORY_DATA.constellationNodes[0].photoPath).toBe('/images/uci/uci-eyes-detail.jpg');
+    expect(STORY_DATA.constellationNodes[7].photoPath).toBe('/images/uci/uci-genesis.jpg');
 
     const spicyCount = STORY_DATA.constellationNodes.filter((n) => n.category === 'spicy').length;
     const soulCount = STORY_DATA.constellationNodes.filter((n) => n.category === 'soul').length;
@@ -126,7 +127,7 @@ describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', 
     expect(STORY_DATA.scratchCards[3].tag).toBe('DANGEROUSLY ADDICTED TO YOU ♥');
   });
 
-  it('heartbeatWhispers contains exact 6 grounded LDR whisper strings', () => {
+  it('heartbeatWhispers contains exact 6 grounded SYG whisper strings', () => {
     expect(STORY_DATA.heartbeatWhispers).toHaveLength(6);
     expect(STORY_DATA.heartbeatWhispers[0]).toBe('Hold right there, cintaku. Just a little longer.');
     expect(STORY_DATA.heartbeatWhispers[5]).toBe(
@@ -134,7 +135,7 @@ describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', 
     );
   });
 
-  it('birthdayLetter contains grounded LDR paragraph, Sayang signature, and Telegram address request', () => {
+  it('birthdayLetter contains grounded SYG paragraph, Sayang signature, and Telegram address request', () => {
     expect(STORY_DATA.birthdayLetter.salutation).toBe(
       'To my gorgeous girlfriend, my cinta, my forever cintaku — Uci,'
     );
@@ -150,7 +151,7 @@ describe('AT-01: Final Refinement, Audio Repair & LDR Story Content Integrity', 
     );
   });
 
-  it('vipCoupons contains exact 6 LDR coupons with SAYANG redeemed badges', () => {
+  it('vipCoupons contains exact 6 SYG coupons with SAYANG redeemed badges', () => {
     expect(STORY_DATA.vipCoupons).toHaveLength(6);
     expect(STORY_DATA.vipCoupons[0].code).toBe('UCI-ROYAL-001');
     expect(STORY_DATA.vipCoupons[0].title).toBe('01 — THE COMFORT CALL');

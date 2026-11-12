@@ -45,12 +45,12 @@ export const ScratchVault: React.FC<ScratchVaultProps> = ({
           )}
           <div>
             <span className="text-[10px] font-mono uppercase tracking-widest text-[#FECDD3] font-bold block">
-              18+ · PRIVATE AFTER-HOURS VAULT · MUTUAL YES ONLY
+              18+ · PRIVATE AFTER-HOURS VAULT ·
             </span>
             <span className="text-xs font-serif italic text-[#F8E6A0]/85">
               {isAdultConsentConfirmed
                 ? '18+ private vault unlocked for Uci — scratch any gold card below.'
-                : 'Explicit adult romance & unfiltered late-night confessions. Your pace, your boundaries, always.'}
+                : 'Explicit adult romance & unfiltered late-night confessions. My Sexy girl, always.'}
             </span>
           </div>
         </div>

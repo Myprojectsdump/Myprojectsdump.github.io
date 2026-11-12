@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RotateCcw, ArrowRight } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
+import { STORY_DATA } from '../config/storyContent';
 import { CityOrb } from './act6/CityOrb';
 import { HeartbeatWaveform } from './act6/HeartbeatWaveform';
 import { FingerprintHeartTarget } from './act6/FingerprintHeartTarget';
@@ -252,6 +253,28 @@ export const Act6AcrossTheDistance: React.FC = () => {
               : `${progressPercent}% Synchronized`}
           </span>
         </div>
+
+        {/* Heartbeat Completion Portrait Reveal */}
+        {isCompleted && (
+          <div className="flex items-center gap-3.5 px-4 py-2.5 rounded-2xl bg-[#1A0C06]/90 border border-[#D9AE50]/75 shadow-[0_8px_32px_rgba(225,29,72,0.35)] backdrop-blur-md animate-in fade-in zoom-in-95 duration-700 max-w-sm mt-1">
+            <div className="w-14 h-16 sm:w-16 sm:h-18 rounded-xl overflow-hidden border border-[#D9AE50]/60 shrink-0 shadow-md bg-[#2A1408]">
+              <img
+                src={STORY_DATA.photos.heartbeat?.path || '/images/uci/uci-heartbeat-reveal.jpg'}
+                alt="Our Hearts in Sync"
+                className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 25%' }}
+              />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="text-[9px] font-mono uppercase tracking-[0.22em] text-[#FDA4AF] font-bold">
+                HEARTS IN SYNC // ACROSS THE MILES
+              </span>
+              <p className="font-serif italic text-sm sm:text-base text-[#FFFDF5] font-normal leading-snug">
+                Different places. One very full heart. <span className="text-[#E11D48]">♥</span>
+              </p>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer Actions */}

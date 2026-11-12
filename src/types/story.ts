@@ -8,6 +8,7 @@ export type MediaAssetKey =
   | 'act2-keepsake-02-sweetest-laugh'
   | 'act2-keepsake-03-late-night-call'
   | 'act2-keepsake-04-cute-habit'
+  | 'act2-keepsake-05-monochrome'
   | 'act2-keepsake-05-song-changed'
   | 'act2-keepsake-06-future-trip'
   | 'act3-mirror-silhouette'
@@ -21,23 +22,37 @@ export type MediaAssetKey =
   | 'act4-star-waist'
   | 'act4-star-voice'
   | 'act4-star-heart'
+  | 'act5-bedroom-menace'
+  | 'act5-princess-energy'
+  | 'act6-heartbeat-reveal'
   | 'act7-letter-keepsake-photo'
   | 'final-actual-gift-reveal';
 
 export type PhotoSlotKey =
   | 'portrait'
+  | 'genesis'
   | 'mirror'
   | 'daylight'
   | 'afterhours'
   | 'eyes'
   | 'smile'
   | 'playful'
+  | 'lips'
   | 'sideprofile'
   | 'sleepy'
+  | 'bedroomMenace'
+  | 'princessEnergy'
+  | 'heartbeat'
   | 'keepsake01'
   | 'keepsake02'
   | 'keepsake03'
   | 'keepsake04'
+  | 'keepsake05'
+  | 'keepsakeFourMoments'
+  | 'keepsakeLateNightCall'
+  | 'keepsakeCasualSelfie'
+  | 'keepsakeNightMemory'
+  | 'keepsakeMonochrome'
   | 'finale';
 
 export interface PhotoEntry {
@@ -165,6 +180,8 @@ export interface Act5IngredientItem {
   iconName: 'heart' | 'crown' | 'sparkles' | 'flame';
   tempTarget: number;
   isDominant?: boolean;
+  photoPath?: string;
+  imageAltText?: string;
 }
 
 export interface ScratchCardData {
@@ -177,6 +194,8 @@ export interface ScratchCardData {
   secretText: string;
   rewardTag?: string;
   requiresAdultConsent?: boolean;
+  photoPath?: string;
+  imageAltText?: string;
 }
 
 export type ScratchCardItem = ScratchCardData;

@@ -89,13 +89,13 @@ export const Act2LittleThingsIKeep: React.FC = () => {
         </div>
 
         {/* Main Heading */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-serif italic text-[#4A3004] font-normal tracking-tight leading-tight mb-2 drop-shadow-[0_2px_16px_rgba(255,253,245,0.95)]">
-          Four Little Things I Want You to Keep.
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[50px] font-serif italic text-[#4A3004] font-normal tracking-tight leading-tight mb-2 drop-shadow-[0_2px_16px_rgba(255,253,245,0.95)]">
+          A Few Things I Adore About You.
         </h2>
 
         {/* Supporting Message */}
         <p className="text-xs sm:text-sm md:text-base text-[#5A3B05]/90 font-serif italic max-w-xl mx-auto leading-relaxed mb-1 drop-shadow-sm">
-          Four little pieces of our story, saved across the distance.
+          Little pieces of our story, saved across the distance.
         </p>
 
         {/* Interaction Instruction */}
@@ -112,11 +112,12 @@ export const Act2LittleThingsIKeep: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── FOUR KEEPSAKE CARDS GALLERY ─── */}
-      <div className="relative z-20 w-full max-w-6xl mx-auto my-auto py-4 px-2 sm:px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+      {/* ─── KEEPSAKE CARDS GALLERY ─── */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto my-auto py-4 px-2 sm:px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
           {CONFIGURED_MEMORIES.map((mem) => {
             const isFound = discoveredMemoryIds.includes(mem.id);
+            const isCollage = mem.id === 'mem-02' || mem.photoPath.includes('four-moments');
             return (
               <button
                 key={mem.id}
@@ -132,13 +133,13 @@ export const Act2LittleThingsIKeep: React.FC = () => {
                 <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 bg-[#F8E6A0]/85 border border-[#D9AE50]/40 shadow-xs transform -rotate-1 rounded-xs pointer-events-none z-10" />
 
                 {/* Photograph Frame Area */}
-                <div className="w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[#D9AE50]/25 shadow-inner mb-3 bg-[#FFF9EA]">
+                <div className={`w-full h-44 sm:h-48 rounded-xl overflow-hidden border border-[#D9AE50]/25 shadow-inner mb-3 ${isCollage ? 'bg-[#1F140E]' : 'bg-[#FFF9EA]'}`}>
                   <SmartImage
                     assetKey={mem.imageAssetKey}
                     src={mem.photoPath}
                     alt={mem.imageAltText || mem.title}
                     aspectRatio="aspect-[4/5]"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full ${isCollage ? 'object-contain' : 'object-cover'}`}
                     theme="warm"
                   />
                 </div>
@@ -246,19 +247,36 @@ export const Act2LittleThingsIKeep: React.FC = () => {
             </div>
 
             {/* Large Polaroid Photograph Frame with Top Tape */}
-            <div className="relative p-2.5 bg-[#FFF9EA] rounded-2xl border border-[#D9AE50]/35 shadow-sm">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#F8E6A0]/90 border border-[#D9AE50]/40 shadow-xs transform -rotate-1 rounded-xs pointer-events-none z-10" />
-              <div className="w-full h-56 sm:h-64 rounded-xl overflow-hidden">
-                <SmartImage
-                  assetKey={activeMemory.imageAssetKey}
-                  src={activeMemory.photoPath}
-                  alt={activeMemory.imageAltText || activeMemory.title}
-                  aspectRatio="aspect-[16/10]"
-                  className="w-full h-full object-cover rounded-xl"
-                  theme="warm"
-                />
-              </div>
-            </div>
+            {(() => {
+              const isCollageModal =
+                activeMemory.id === 'mem-02' ||
+                activeMemory.photoPath.includes('four-moments');
+              return (
+                <div
+                  className={`relative p-2.5 rounded-2xl border border-[#D9AE50]/35 shadow-sm ${
+                    isCollageModal ? 'bg-[#1F140E]' : 'bg-[#FFF9EA]'
+                  }`}
+                >
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#F8E6A0]/90 border border-[#D9AE50]/40 shadow-xs transform -rotate-1 rounded-xs pointer-events-none z-10" />
+                  <div
+                    className={`w-full rounded-xl overflow-hidden ${
+                      isCollageModal ? 'h-72 sm:h-84' : 'h-56 sm:h-64'
+                    }`}
+                  >
+                    <SmartImage
+                      assetKey={activeMemory.imageAssetKey}
+                      src={activeMemory.photoPath}
+                      alt={activeMemory.imageAltText || activeMemory.title}
+                      aspectRatio={isCollageModal ? 'aspect-[3/4]' : 'aspect-[16/10]'}
+                      className={`w-full h-full rounded-xl ${
+                        isCollageModal ? 'object-contain' : 'object-cover'
+                      }`}
+                      theme="warm"
+                    />
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Story Text Body */}
             <p className="text-sm sm:text-base text-[#4A3004]/90 font-serif leading-relaxed">

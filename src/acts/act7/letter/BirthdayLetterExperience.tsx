@@ -91,9 +91,9 @@ export const BirthdayLetterExperience: React.FC = () => {
           </div>
         </div>
 
-        {/* Finale Keepsake Portrait Card (uci-finale.jpg) Revealed When Letter Unfolds */}
+        {/* Finale Keepsake Portrait Card (uci-final-letter.jpg) Revealed When Letter Unfolds */}
         {isLetterSealBroken && (
-          <div className="hidden sm:flex flex-col items-center p-2.5 pb-4 rounded-2xl bg-[#FFFDF5]/90 border border-[#D9AE50]/60 shadow-[0_12px_32px_rgba(0,0,0,0.5)] transform -rotate-2 max-w-[190px] w-full animate-in fade-in duration-500">
+          <div className="flex flex-col items-center p-2 sm:p-2.5 pb-3 sm:pb-4 rounded-2xl bg-[#FFFDF5]/90 border border-[#D9AE50]/60 shadow-[0_12px_32px_rgba(0,0,0,0.5)] transform -rotate-1 sm:-rotate-2 max-w-[140px] sm:max-w-[190px] w-full animate-in fade-in duration-500 mt-2 sm:mt-0">
             <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-[#FFF9EA] border border-[#D9AE50]/30">
               <SmartImage
                 assetKey="act7-letter-keepsake-photo"
@@ -103,7 +103,7 @@ export const BirthdayLetterExperience: React.FC = () => {
                 theme="warm"
               />
             </div>
-            <span className="text-[10px] font-serif italic text-[#5A3B05] mt-2 text-center">
+            <span className="text-[9px] sm:text-[10px] font-serif italic text-[#5A3B05] mt-1.5 sm:mt-2 text-center">
               My favourite person across every mile ♥
             </span>
           </div>
@@ -164,7 +164,7 @@ export const BirthdayLetterExperience: React.FC = () => {
               {STORY_DATA.birthdayLetter.salutation}
             </h3>
 
-            {/* LDR Body Paragraphs */}
+            {/* SYG Body Paragraphs */}
             <div className="space-y-3 text-xs sm:text-sm font-serif leading-relaxed text-[#2A1408] font-medium drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]">
               {STORY_DATA.birthdayLetter.paragraphs.map((p, idx) => (
                 <p key={idx} className="indent-4 sm:indent-6">

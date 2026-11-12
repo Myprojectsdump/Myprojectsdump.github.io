@@ -90,17 +90,26 @@ export const StarDetailCard: React.FC<StarDetailCardProps> = ({
           {/* Washi Tape Accent */}
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 bg-[#F8E6A0]/80 border-t border-b border-[#D9AE50]/40 rotate-1 shadow-xs pointer-events-none z-10" />
 
-          {/* Photograph Artwork */}
-          <div className="w-full aspect-square rounded overflow-hidden flex items-center justify-center relative bg-[#FFF9EA]">
-            <SmartImage
-              assetKey={node.mediaAssetKey}
-              src={node.photoPath}
-              alt={node.headline}
-              caption={node.headline}
-              className="w-full h-full"
-              theme="warm"
-            />
-          </div>
+        {/* Photograph Artwork */}
+        {(() => {
+          const isEyesNode = node.id === 'eyes' || (node.photoPath && node.photoPath.includes('eyes'));
+          return (
+            <div
+              className={`w-full rounded overflow-hidden flex items-center justify-center relative ${
+                isEyesNode ? 'aspect-[2.6/1] bg-[#111111] my-auto' : 'aspect-square bg-[#FFF9EA]'
+              }`}
+            >
+              <SmartImage
+                assetKey={node.mediaAssetKey}
+                src={node.photoPath}
+                alt={node.headline}
+                caption={node.headline}
+                className={`w-full h-full ${isEyesNode ? 'object-contain object-center' : 'object-cover'}`}
+                theme={isEyesNode ? 'dark' : 'warm'}
+              />
+            </div>
+          );
+        })()}
 
           {/* Bottom Gold Foil Monogram */}
           <div className="flex items-center justify-between mt-2.5 px-1 text-[11px] font-serif text-[#6B4706]">

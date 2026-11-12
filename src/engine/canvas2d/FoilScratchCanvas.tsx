@@ -289,13 +289,26 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({
           </div>
         </div>
 
-        <h4 className="text-base sm:text-lg font-serif italic text-[#FFFDF5] font-normal leading-snug drop-shadow mt-1">
-          {card.secretTitle}
-        </h4>
-
-        <p className="text-xs sm:text-sm text-[#F8E6A0]/90 font-sans leading-relaxed">
-          "{card.secretBody}"
-        </p>
+        <div className="flex items-start gap-3 mt-1">
+          {card.photoPath && (
+            <div className="w-14 h-16 sm:w-16 sm:h-20 rounded-xl overflow-hidden border border-[#D9AE50]/60 shrink-0 shadow-md bg-[#2C1810]">
+              <img
+                src={card.photoPath}
+                alt={card.imageAltText || card.secretTitle}
+                className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 20%' }}
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h4 className="text-base sm:text-lg font-serif italic text-[#FFFDF5] font-normal leading-snug drop-shadow">
+              {card.secretTitle}
+            </h4>
+            <p className="text-xs sm:text-sm text-[#F8E6A0]/90 font-sans leading-relaxed mt-1">
+              "{card.secretBody}"
+            </p>
+          </div>
+        </div>
 
         {/* Supplementary Redemption Guidance */}
         {guidance && (
@@ -355,10 +368,10 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({
         >
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#881337]/60 border border-[#FDA4AF]/40 text-[10px] font-mono uppercase tracking-widest text-[#FECDD3]">
             <Lock className="w-3 h-3 text-[#FDA4AF]" />
-            <span>18+ · MUTUAL YES ONLY</span>
+            <span>18+</span>
           </div>
           <p className="font-serif italic text-sm text-[#FFFDF5] max-w-xs leading-snug">
-            Private After-Hours Confession for Uci. Explicit 18+ intimacy — always your pace, your boundaries.
+            Private After-Hours Confession for Uci. Just for you, my naughty girl!
           </p>
           <div className="flex items-center gap-2 mt-1">
             <button
@@ -366,7 +379,7 @@ export const FoilScratchCanvas: React.FC<FoilScratchCanvasProps> = ({
               onClick={handleConfirmConsentAndUnlock}
               className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#F8E6A0] via-[#FFF9EA] to-[#F8E6A0] text-[#4A3004] font-mono text-[10px] font-bold uppercase tracking-wider shadow-[0_0_16px_rgba(233,196,106,0.5)] cursor-pointer"
             >
-              I Am 18+ · Unlock Vault 🔥
+              I submit to you 🔥
             </button>
             <button
               type="button"
