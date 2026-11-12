@@ -368,11 +368,10 @@ export const CONFIGURED_MEMORIES: MemoryItemConfig[] = [
     title: 'OPEN WHEN YOU MISS ME',
     eraOrDateLabel: 'Whenever the Distance Feels Loud',
     storyBody:
-      'Whenever the miles between us feel heavy, open this and remember: you are never loving me alone. Press play if you want to hear my voice reminding you how deeply you are cherished, cintaku.',
-    secondaryWhisper: 'No matter the hour, my heart is already on your side of the sky.',
+      'Whenever the miles between us feel heavy, open this and remember: you are never loving me alone. Whenever you miss me, just call or text me, cintaku. No recording, no waiting—I am always just one call away.',
+    secondaryWhisper: 'No matter the hour, pick up your phone. I want to hear from you too. ❤️',
     imageAssetKey: 'act2-keepsake-03-late-night-call',
     photoPath: PHOTO_PATHS.keepsakeLateNightCall.path,
-    voiceNoteSrc: '/audio/my-voice-note.mp3',
     imageAltText: PHOTO_PATHS.keepsakeLateNightCall.alt,
   },
   {
@@ -402,7 +401,7 @@ export const CONFIGURED_MEMORIES: MemoryItemConfig[] = [
       'Late-night calls',
       'Shared playlists',
       'Online movie dates',
-      'Voice notes',
+      'Sweet check-in messages',
       'Private jokes',
       'Little daily conversations',
     ],
@@ -453,7 +452,7 @@ export const CONFIGURED_ACTUAL_GIFT: ActualGiftConfig = {
   deliveryOrRedemptionNote:
     "Sayang has one little question, baby. I'd love to send a little surprise your way. When you have a moment, send me the delivery address you'd be comfortable receiving it at. No rush—just message me privately. ❤️",
   personalNote:
-    'Until I can hand you everything in person, let this be the first real piece of my world arriving in yours. Happy birthday, my gorgeous Uci. ♥',
+    'Something to male your days wonderful, let this be the a piece of my world arriving into yours. Happy birthday, my gorgeous Uci. ♥',
   ctaLabel: "I CAN'T WAIT — OPEN IT!",
   addressRevealHeading: 'ONE TINY THING, CINTAKU',
   addressRevealBody:
@@ -575,7 +574,7 @@ export const STORY_DATA: StoryDataPayload = {
       x: 28,
       y: 68,
       text: 'Your laugh is my favourite sound.',
-      subtext: 'One voice note from you changes my whole night, cinta.',
+      subtext: 'One sweet message from you changes my whole night, cinta.',
     },
     {
       id: 4,
@@ -588,7 +587,7 @@ export const STORY_DATA: StoryDataPayload = {
       id: 5,
       x: 50,
       y: 48,
-      text: 'Worth every mile between us. ♥',
+      text: 'Worth every moment between us. ♥',
       subtext: 'Wipe the rest of the glass to see who owns my heart.',
     },
   ],
@@ -716,8 +715,8 @@ export const STORY_DATA: StoryDataPayload = {
       y: 82,
       headline: 'Her Clingy Little Moments',
       description:
-        'When you ask me to stay on the line a little longer or send me a sleepy voice note because you miss me. I adore every second of it.',
-      body: 'When you ask me to stay on the line a little longer or send me a sleepy voice note because you miss me. I adore every second of it.',
+        'When you ask me to stay on the line a little longer or whisper to me half-asleep because you miss me. I adore every second of it.',
+      body: 'When you ask me to stay on the line a little longer or whisper to me half-asleep because you miss me. I adore every second of it.',
       mediaAssetKey: 'act4-star-voice',
       photoPath: PHOTO_PATHS.daylight.path,
     },
@@ -747,7 +746,7 @@ export const STORY_DATA: StoryDataPayload = {
       percentageLabel: '20%',
       name: 'Pure Cintaku Sweetness',
       shortName: 'Pure Cintaku Sweetness',
-      subtitle: 'Soft voice notes, gentle check-ins & pure warmth across the miles',
+      subtitle: 'Late-night calls, gentle check-ins & pure warmth across the miles',
       color: '#FDE68A',
       glowColor: 'rgba(253, 230, 138, 0.85)',
       iconName: 'heart',
@@ -813,9 +812,9 @@ export const STORY_DATA: StoryDataPayload = {
       tag: 'CONFESSION AFTER DARK 🔥',
       secretTitle: 'YOU MAKE ME STUPIDLY HORNY',
       secretBody:
-        "One teasing look through the camera, one low voice note, one naughty little hint from you, and my concentration is completely fucked. You're ridiculously distracting, cinta. Sometimes all it takes is one message from you to turn a perfectly normal night into a very different kind of night.",
+        "One teasing look through the camera, one low whisper on the line, one naughty little hint from you, and my concentration is completely fucked. You're ridiculously distracting, cinta. Sometimes all it takes is one message from you to turn a perfectly normal night into a very different kind of night.",
       secretText:
-        "One teasing look through the camera, one low voice note, one naughty little hint from you, and my concentration is completely fucked. You're ridiculously distracting, cinta. Sometimes all it takes is one message from you to turn a perfectly normal night into a very different kind of night.",
+        "One teasing look through the camera, one low whisper on the line, one naughty little hint from you, and my concentration is completely fucked. You're ridiculously distracting, cinta. Sometimes all it takes is one message from you to turn a perfectly normal night into a very different kind of night.",
       rewardTag: 'CONFESSION AFTER DARK 🔥',
       requiresAdultConsent: true,
       photoPath: PHOTO_PATHS.bedroomMenace.path,
@@ -881,9 +880,9 @@ export const STORY_DATA: StoryDataPayload = {
 "I wish I could be there today to hold you close, steal a hundred kisses, mess with you, and remind you in person how ridiculously special you are. Instead, I've built you this little universe, hoping it makes the miles between us feel a little bit less.",
 "You've become such a big part of my everyday life. You're the person whose text I wait for, whose voice can fix a bad day, and whose smallest updates somehow make me smile. And yes, when you disappear without telling me you're okay, my brain starts overthinking every possible scenario. I ask because I care, sweetheart. I worry because you matter that fucking much to me.",
 "I love your soft, sleepy side, your teasing, your mischievous smile, and especially that dangerous 2 AM version of you. God, I wish I could kiss you instead of staring at the screen. I want your hugs, your kisses, your closeness, and honestly, I want you so fucking much.",
-"Won't forget to say I kinda like when u call me and fall asleep hearing my voice, want you make you feel even safer.",
+"Won't forget to say I kinda like when u call me and fall asleep hearing my voice, want to make you feel even safer.",
 "I don't need grand promises to tell you that I can't imagine a day going by without wanting you in it.",
-"Happy birthday, beautiful. Keep that smile alive. And get some kisses for daddy. I'll be waiting .....",
+"Happy birthday, beautiful. Keep that smile alive. And get some kisses for daddy. I'm waiting cuz it's never enough.....",
     ],
     signOff: 'Forever obsessed with you,',
     signature: 'Your Daddy ♥',

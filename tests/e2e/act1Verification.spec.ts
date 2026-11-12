@@ -70,9 +70,9 @@ test.describe('Act I: Two Countries, One Sky — Visual & Interaction Verificati
       // Wait for ritual completion
       await page.waitForTimeout(1400);
 
-      // Verify Connected-State Message & Voice Player
+      // Verify Connected-State Message & Direct Call Reassurance
       await expect(page.getByText('No distance could make you feel far away.', { exact: false })).toBeVisible();
-      await expect(page.getByText('I Have Something to Tell You ❤️')).toBeVisible();
+      await expect(page.getByText(/Whenever you miss me, don't wait/i)).toBeVisible();
 
       const proceedBtn = page.getByRole('button', { name: /LET'S RELIVE OUR LITTLE MOMENTS/i });
       await expect(proceedBtn).toBeVisible();

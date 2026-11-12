@@ -6,9 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import { ScrollDirector } from '../engine/motion/ScrollDirector';
-import { VoicePlayerPill } from '../components/media/VoicePlayerPill';
 import { SmartImage } from '../components/media/SmartImage';
-import { OPENING_VOICE_TRANSCRIPT, STORY_DATA } from '../config/storyContent';
+import { STORY_DATA } from '../config/storyContent';
 import { proceduralAudio } from '../engine/audio/ProceduralAudio';
 
 export const Act1TwoCountriesOneSky: React.FC = () => {
@@ -338,13 +337,13 @@ export const Act1TwoCountriesOneSky: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Voice Player Pill */}
-                <VoicePlayerPill
-                  audioPath="/audio/my-voice-note.mp3"
-                  transcript={OPENING_VOICE_TRANSCRIPT}
-                  title="I Have Something to Tell You ❤️"
-                  autoPlay={false}
-                />
+                {/* Direct Reassurance Callout */}
+                <div className="flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-[#FFFDF5]/90 border border-[#D9AE50]/70 shadow-[0_4px_16px_rgba(217,174,80,0.18)] backdrop-blur-md text-center max-w-md">
+                  <span className="text-[#E11D48] text-base select-none shrink-0">♥</span>
+                  <span className="font-serif italic text-xs sm:text-sm text-[#4A3004] leading-relaxed">
+                    Whenever you miss me, don't wait. Just call or text me. I'm only a call away.
+                  </span>
+                </div>
 
                 {/* Continue Navigation Button */}
                 <button

@@ -191,8 +191,8 @@ test.describe('Act VII: The Moonlit Birthday Wish — Master Verification', () =
     await expect(page.getByText('Forever obsessed with you,')).toBeVisible();
     await expect(page.getByText('Your Boyfriend ♥')).toBeVisible();
 
-    // Verify Voice Player & Final Gift CTA
-    await expect(page.getByText('Listen to My Voice')).toBeVisible();
+    // Verify Reassurance Badge & Final Gift CTA
+    await expect(page.getByText('Always just a call or text away')).toBeVisible();
     await expect(page.getByRole('button', { name: /RECEIVE YOUR BIRTHDAY GIFT ✨/i }).first()).toBeVisible();
 
     // Take screenshot of 7C birthday letter

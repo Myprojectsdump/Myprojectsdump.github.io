@@ -5,7 +5,6 @@ import { X, Sparkles, ArrowRight, Heart } from 'lucide-react';
 import { useExperienceStore } from '../store/useExperienceStore';
 import { CONFIGURED_MEMORIES } from '../config/storyContent';
 import { SmartImage } from '../components/media/SmartImage';
-import { VoicePlayerPill } from '../components/media/VoicePlayerPill';
 import { InteractionHint } from '../components/hud/InteractionHint';
 
 export const Act2LittleThingsIKeep: React.FC = () => {
@@ -302,20 +301,15 @@ export const Act2LittleThingsIKeep: React.FC = () => {
               </div>
             )}
 
-            {/* Optional Voice Recording Player (/audio/my-voice-note.mp3) */}
-            {(activeMemory.voiceNoteSrc || activeMemory.audioAssetKey) && (
-              <div className="w-full pt-1">
-                <VoicePlayerPill
-                  audioPath={
-                    activeMemory.voiceNoteSrc ||
-                    `/media/audio/voice/${activeMemory.audioAssetKey}.mp3`
-                  }
-                  transcript={activeMemory.storyBody}
-                  title="Listen to My Voice Note 🎙️"
-                  autoPlay={false}
-                />
+            {/* Direct Reassurance Note (Always a Call Away) */}
+            <div className="w-full pt-1">
+              <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFF9EA] border border-[#D9AE50]/50 text-center shadow-xs">
+                <span className="text-[#E11D48] text-xs select-none">♥</span>
+                <span className="text-xs sm:text-[13px] font-serif italic text-[#6B4706] leading-relaxed">
+                  No recording, no waiting. Just pick up your phone and call or text me, sweetheart. I'm always right here.
+                </span>
               </div>
-            )}
+            </div>
 
             {/* Modal Action Close Button */}
             <div className="flex justify-center pt-2 border-t border-[#D9AE50]/20">

@@ -5,7 +5,6 @@ import { Mail, RotateCcw } from 'lucide-react';
 import { useExperienceStore } from '../../../store/useExperienceStore';
 import { STORY_DATA } from '../../../config/storyContent';
 import { proceduralAudio } from '../../../engine/audio/ProceduralAudio';
-import { VoicePlayerPill } from '../../../components/media/VoicePlayerPill';
 import { SmartImage } from '../../../components/media/SmartImage';
 
 export const BirthdayLetterExperience: React.FC = () => {
@@ -151,12 +150,11 @@ export const BirthdayLetterExperience: React.FC = () => {
                 </span>
               </div>
 
-              {/* Voice Note Pill Player */}
-              <VoicePlayerPill
-                audioPath="/audio/my-voice-note.mp3"
-                transcript="Spoken reading of your birthday letter"
-                title="Listen to My Voice"
-              />
+              {/* Direct Reassurance Badge */}
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFFDF7]/60 border border-[#D9AE50]/40 text-[11px] font-mono text-[#5C2A0A] shadow-xs">
+                <span className="text-[#E11D48]">♥</span>
+                <span className="font-serif italic">Always just a call or text away</span>
+              </div>
             </div>
 
             {/* Salutation */}

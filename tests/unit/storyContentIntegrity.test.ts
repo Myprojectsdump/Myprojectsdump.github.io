@@ -69,7 +69,7 @@ describe('AT-01: Final Refinement, Audio Repair & SYG Story Content Integrity', 
   it('steamyMirrorNotes contains exact 5 SYG notes and coordinates', () => {
     expect(STORY_DATA.steamyMirrorNotes).toHaveLength(5);
     expect(STORY_DATA.steamyMirrorNotes[0].text).toBe('Even through a screen, you leave me breathless.');
-    expect(STORY_DATA.steamyMirrorNotes[4].text).toBe('Worth every mile between us. ♥');
+    expect(STORY_DATA.steamyMirrorNotes[4].text).toBe('Worth every moment between us. ♥');
   });
 
   it('vinylTracks contains both Side A and Side B with 4 cards and confessions each', () => {
@@ -178,5 +178,28 @@ describe('AT-01: Final Refinement, Audio Repair & SYG Story Content Integrity', 
     expect(afterRelight.birthdayWishText).toBe('Stay close across the distance');
     expect(afterRelight.isLetterSealBroken).toBe(true);
     expect(afterRelight.vipRedemptions['vip-01']?.redeemed).toBe(true);
+  });
+
+  it('verifies complete removal of voice-note prompts and replacement with direct call reassurance', () => {
+    // 1. Keepsake memory 01 has voiceNoteSrc removed and includes warm call/text reassurance
+    expect(STORY_DATA.keepsakeMemories[0].voiceNoteSrc).toBeUndefined();
+    expect(STORY_DATA.keepsakeMemories[0].storyBody).toContain(
+      'Whenever you miss me, just call or text me, cintaku. No recording, no waiting—I am always just one call away.'
+    );
+    expect(STORY_DATA.keepsakeMemories[0].storyBody).not.toMatch(/press play|voice note/i);
+
+    // 2. Keepsake memory 03 midnight rituals replaces voice notes with sweet messages
+    expect(STORY_DATA.keepsakeMemories[2].bulletItems).toContain('Sweet check-in messages');
+    expect(STORY_DATA.keepsakeMemories[2].bulletItems).not.toContain('Voice notes');
+
+    // 3. Mirror notes contain no voice note references
+    STORY_DATA.steamyMirrorNotes.forEach((note) => {
+      expect(note.subtext).not.toMatch(/voice note/i);
+    });
+
+    // 4. Scratch cards contain no voice note references
+    STORY_DATA.scratchCards.forEach((card) => {
+      expect(card.secretBody).not.toMatch(/voice note/i);
+    });
   });
 });
